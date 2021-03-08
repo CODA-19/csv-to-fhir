@@ -10,6 +10,14 @@ structure.
 
 
 
+The column ending with '_uid' other than patient_site_uid
+was added to allow the generated files to work in the Aidbox
+environment. The values in this column do not exist in the
+source csv file. They are generated using random-hex number
+generator, and this may change later.
+
+
+
 
 @author: rdas
 """
@@ -26,8 +34,14 @@ import csv as cv
 
 ## Define the paths (The paths here are those that considered the CITADEL infrastructure)
 
-pathOfDiagnosisfile = '/data8/projets/Mila_covid19/output/covidb_full/csv/diagnosis_data.csv'
-pathofDiagnosisJsonfile = '/data8/network_mount/S/FHIR_json/diagnosis_data.json'
+
+pathOfDiagnosisfile = '/data8/network_mount/S/CODA19_Anon_csv/diagnosis_data.csv'
+#pathofDiagnosisJsonfile = '/data8/network_mount/S/FHIR_json/Final_Oct_21/diagnosis_data.json'
+pathofDiagnosisJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files_Nov_17/diagnosis_data.json'
+
+
+path_to_dictionary = '/data8/projets/ChasseM_CODA19_1014582/fhir/code/rdas/files_mapping/chum.json'
+
 
 
 
@@ -35,6 +49,42 @@ pathofDiagnosisJsonfile = '/data8/network_mount/S/FHIR_json/diagnosis_data.json'
 ## Provides a dataframe.
 
 dfDiagnosis = pd.read_csv(pathOfDiagnosisfile)
+
+
+
+def read_dictionary(path_to_dictionary_file):
+    
+    
+    """
+    
+    Considers path of the json file. 
+    
+    
+    Arguments:
+        
+        path_to_setting_file: A string
+        
+    Returns: 
+        
+        data: Object 
+    
+    
+    """
+    
+   
+    try:
+        with open(path_to_dictionary_file) as data_file:
+            data = js.load(data_file)
+            data_file.close()
+            return data
+    
+    except IOError as e:
+        
+        print("I/O error({0}): {1}".format(e.errno, e.strerror))
+        return -1
+
+
+
 
 
 
@@ -71,7 +121,7 @@ def diagnosis_dic_json(dfDiagnosis):
                             
                             # Each resource entry needs a unique id for the ndjson bulk upload
                             
-                            "id": "Provide id here",
+                            "id": dfDiagnosis.iloc[i]["diagnosis_uid"],
                             
                                              
                            
@@ -92,24 +142,16 @@ def diagnosis_dic_json(dfDiagnosis):
                             "code": {
                               
                               "coding": [
-                                  {
-                                        # SNOMED code for the diagnosis (SNOMED field to be omitted until coding/categorization completed) 
-                            	
-                            				"system": "http://snomed.info/sct",
-                            				"code": "422504002",
-                            				"display": "Ischemic stroke (disorder)"
-                                        # Sites may have ICD-10 codes for diagnoses, please include here if so.  
-                                  }, 
-                                          
+                                                                           
                                   {
                             				"system": "http://hl7.org/fhir/ValueSet/icd-10",
-                            				"code": "I63.9",
-                            				"display": "Cerebral infarction, unspecified"
+                            				"code": dfDiagnosis.iloc[i]["diagnosis_icd_code"],
+                            				"display": dfDiagnosis.iloc[i]["diagnosis_name"]
                             		 }
                                
                                 ],
                                
-                                "text": "Stroke"
+                                "text": dfDiagnosis.iloc[i]["diagnosis_name"]
                                                       
                                   
                             }                

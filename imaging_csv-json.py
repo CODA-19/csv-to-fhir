@@ -9,6 +9,14 @@ a json file using the data retrieved based on the FHIR
 structure.
 
 
+The column ending with '_uid' other than patient_site_uid
+was added to allow the generated files to work in the Aidbox
+environment. The values in this column do not exist in the
+source csv file. They are generated using random-hex number
+generator, and this may change later.
+
+
+
 @author: rdas
 """
 
@@ -23,9 +31,10 @@ import csv as cv
 
 ## Define the paths (The paths here are those that considered the CITADEL infrastructure)
 
-pathOfImagingfile = '/data8/projets/Mila_covid19/output/covidb_full/csv/imaging_data.csv'
-pathofImagingJsonfile = '/data8/network_mount/S/FHIR_json/imaging_data.json'
 
+
+pathOfImagingfile = '/data8/network_mount/S/CODA19_Anon_csv/imaging_data.csv'
+pathofImagingJsonfile = '/data8/network_mount/S/FHIR_json/Final_Oct_21/imaging_data.json'
 
 
 ## Load and process (if required) the data using Pandas and the csv file.
@@ -68,7 +77,7 @@ def imaging_dic_json(dfImaging):
                           
                           # Each resource entry needs a unique id for the ndjson bulk upload. 
                           
-                          "id": "Provide id here",
+                          "id": dfImaging.iloc[i]["imaging_uid"], ## "patient_site_uid"
                           
      
                           "subject": {
