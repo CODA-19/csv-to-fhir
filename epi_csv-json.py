@@ -8,6 +8,13 @@ a json file using the data retrieved based on the FHIR
 structure.
 
 
+The column ending with '_uid' other than patient_site_uid
+was added to allow the generated files to work in the Aidbox
+environment. The values in this column do not exist in the
+source csv file. They are generated using random-hex number
+generator, and this may change later.
+
+
 
 @author: rdas
 """
@@ -21,9 +28,17 @@ import csv as cv
 ## Define the paths (The paths here are those that considered the CITADEL infrastructure)
 
 
-pathOfEpifile = '/data8/projets/Mila_covid19/output/covidb_full/csv/episode_data.csv'
-pathofEpiJsonfile = '/data8/network_mount/S/FHIR_json/episode_data.json'
+#pathOfEpifile = '/data8/projets/Mila_covid19/output/covidb_full/csv/episode_data.csv'
+#pathofEpiJsonfile = '/data8/network_mount/S/FHIR_json/episode_data.json'
 
+
+
+#pathOfEpifile = '/data8/projets/Mila_covid19/output/covidb_anon/csv/episode_data.csv'
+#pathofEpiJsonfile = '/data8/network_mount/S/FHIR_json/Final_Sep_21/episode_data.json'
+
+
+pathOfEpifile = '/data8/network_mount/S/CODA19_Anon_csv/episode_data.csv'
+pathofEpiJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files_Nov_17/episode_data.json'
 
 
 ## Load and process (if required) the data using Pandas and the csv file.
@@ -60,7 +75,7 @@ def epi_dic_json(dfepisode):
                 
                            "resourceType" : "Encounter",
                            
-                           "id": "Provide id here",                                       
+                           "id": dfepisode.iloc[i]["episode_admission_uid"],    ## dfepisode.iloc[i]["patient_site_uid"]                                   
                                                               
                                                                                   
                            "class": {"system": "http://terminology.hi17.org/CodeSystem/v3-ActCode",
