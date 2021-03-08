@@ -19,8 +19,11 @@ import csv as cv
 
 ## Define the paths (The paths here are those that considered the CITADEL infrastructure)
 
-pathOfPatientfile = '/data8/projets/Mila_covid19/output/covidb_full/csv/patient_data.csv'
-pathofDemoJsonfile = '/data8/network_mount/S/FHIR_json/demographic_data.json'
+#pathOfPatientfile = '/data8/projets/Mila_covid19/output/covidb_full/csv/patient_data.csv'
+
+
+pathOfPatientfile = '/data8/network_mount/S/CODA19_Anon_csv/patient_data_birthdate.csv'
+pathofDemoJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files_Nov_17/demographic_data.json'
 
 
 ## Load and process (if required) the data using Pandas and the csv file.
@@ -59,11 +62,25 @@ def dem_dic_json(dfDemodata):
         ## Initialize the deceased flag as true
         ## Then check the patient is dead or alive.
         
-        setdeceasedFlag = 'true'
+        #setdeceasedFlag = 'true'
         
-        if(dfDemodata.iloc[i]["patient_vital_status"] == 'alive'):
+        #if(dfDemodata.iloc[i]["patient_vital_status"] == 'alive'):
             
-            setdeceasedFlag = 'false'
+        #    setdeceasedFlag = 'false'
+        
+        
+        
+        ## This is done to have only the first day of the month
+        ## in the time stamp.
+        
+        datetime_string = dfDemodata.iloc[i]["patient_birth_date"]
+        datetime_list = list(datetime_string)
+        datetime_list[8]='0'
+        datetime_list[9]='1'
+        
+        
+        
+        datetime_input = ''.join(datetime_list)
         
         single_json = { 
                 
@@ -74,7 +91,7 @@ def dem_dic_json(dfDemodata):
                            
                            # Each resource entry has a unique id. This needs to be present for the bulk import to Aidbox to work
                            
-                           "id": "Provide id here",
+                           "id": dfDemodata.iloc[i]["patient_site_uid"],
                             
                           
                            # The gender of the individual: male | female | other | unknown 
@@ -84,16 +101,16 @@ def dem_dic_json(dfDemodata):
                             
                            # The date of birth of the individual (YYYY-MM-DD)                            
                              
-                           "birthDate" : "YYYY-MM-DD",   
+                           "birthDate" : datetime_input,   
                            
                            
                            # Indicates if the individual is deceased or not.
                            
-                           "deceasedBoolean" : setdeceasedFlag,
+                           #"deceasedBoolean" : setdeceasedFlag,
                            
                            # Time of death, if applicable (YYYY-MM-DDThh:mm:ss+zz:zz)       
                            
-                           "deceasedDateTime" : "YYYY-MM-DDThh:mm:ss+zz:zz",
+                           #"deceasedDateTime" : "YYYY-MM-DDThh:mm:ss+zz:zz",
                                      
                        }
 
@@ -107,6 +124,12 @@ def dem_dic_json(dfDemodata):
     
 
 
+## Replace patient_birth_date that are empty with 0000-00-00 00:00:00 to avoid issues later.
+
+dfDemo['patient_birth_date'].fillna('0000-00-00 00:00:00', inplace = True)
+
+
+
 
 ## Call the function to create the required json structure using
 ## dictionary.
@@ -115,9 +138,9 @@ def dem_dic_json(dfDemodata):
 dictJsonDemo = dem_dic_json(dfDemo)    
 
 
-## Create the json file.
+# ## Create the json file.
 
 with open(pathofDemoJsonfile, 'w') as demoFjson:
     
     
-    js.dump(dictJsonDemo,demoFjson)
+     js.dump(dictJsonDemo,demoFjson)
