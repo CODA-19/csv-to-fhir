@@ -34,7 +34,7 @@ import csv as cv
 
 
 pathOfEpifile = '/data8/network_mount/S/CODA19_Anon_csv/episode_data.csv'
-pathofEpiJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files_Nov_17/episode_data_20.json'
+pathofEpiJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files_Feb_10/episode_data.json'
 
 
 path_to_dictionary = '/data8/projets/ChasseM_CODA19_1014582/fhir/code/rdas/files_mapping/chum.json'
@@ -99,7 +99,7 @@ def epi_dic_json(dfepisode,dic_chum):
     
     dict_json = {}
     
-    for i in range(20):
+    for i in range(len(dfepisode)):
         
         
         
