@@ -172,9 +172,14 @@ def epi_dic_json(dfepisode,dic_chum):
                            
                            "subject":{"reference": str(dfepisode.iloc[i]["patient_site_uid"])},
                            
-                           "location": [ {                                    
-                                         "location":{ "reference": code_input,
+                           "location": [ { 
+                                                                            
+                                         "location":{ 
+                                         
+                                         "system": 'https://www.hl7.org/fhir/v3/ServiceDeliveryLocationRoleType/vs.html',        
+                                         "reference": code_input,
                                          "display":  display_complete_input
+                                         
                                        },
                                    
                                        "status": "completed",
