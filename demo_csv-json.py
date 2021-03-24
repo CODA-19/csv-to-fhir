@@ -22,8 +22,8 @@ import csv as cv
 #pathOfPatientfile = '/data8/projets/Mila_covid19/output/covidb_full/csv/patient_data.csv'
 
 
-pathOfPatientfile = '/data8/network_mount/S/CODA19_Anon_csv/patient_data_birthdate.csv'
-pathofDemoJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files_Nov_17/demographic_data.json'
+pathOfPatientfile = '/data8/network_mount/S/CODA19_Anon_csv/march_data/patient_data.csv'
+pathofDemoJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files_Mar_18/demographic_data.json'
 
 
 ## Load and process (if required) the data using Pandas and the csv file.
@@ -72,6 +72,8 @@ def dem_dic_json(dfDemodata):
         
         ## This is done to have only the first day of the month
         ## in the time stamp.
+        
+        
         
         datetime_string = dfDemodata.iloc[i]["patient_birth_date"]
         datetime_list = list(datetime_string)
@@ -127,6 +129,11 @@ def dem_dic_json(dfDemodata):
 ## Replace patient_birth_date that are empty with 0000-00-00 00:00:00 to avoid issues later.
 
 dfDemo['patient_birth_date'].fillna('0000-00-00 00:00:00', inplace = True)
+
+
+## For cases where the entries are -01
+
+dfDemo['patient_birth_date'] = dfDemo['patient_birth_date'].replace({'-01':'0000-00-00 00:00:00'})
 
 
 
