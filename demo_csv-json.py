@@ -19,10 +19,10 @@ import csv as cv
 
 ## Define the paths (The paths here are those that considered the CITADEL infrastructure)
 
-#pathOfPatientfile = '/data8/projets/Mila_covid19/output/covidb_full/csv/patient_data.csv'
-
 
 pathOfPatientfile = '/data8/network_mount/S/CODA19_Anon_csv/march_data/patient_data.csv'
+pathOfDiagnosisfile = '/data8/network_mount/S/CODA19_Anon_csv/march_data/diagnosis_data.csv'
+
 pathofDemoJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files_Mar_18/demographic_data.json'
 
 
@@ -32,9 +32,36 @@ pathofDemoJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files_Mar_18/demog
 
 dfDemo = pd.read_csv(pathOfPatientfile)
 
+dfDiagnosis = pd.read_csv(pathOfDiagnosisfile)
 
 
-def dem_dic_json(dfDemodata):
+## Select only those from the diagnosis list that comprise
+## information concerning death.
+
+dfDiagnosis_dead = dfDiagnosis[dfDiagnosis.diagnosis_name == 'death']
+
+
+
+## The following lines try to mimic joins used in sql queries. The first (commented section) lists
+## patients who are dead due to covid. The second incorporates an approach that considers all
+## possible deaths not just due to covid.
+
+
+#returnCovid_dead = dfDiagnosis_dead.merge(dfDemo[dfDemo.patient_covid_status == 'positive'][['patient_site_uid']], \
+#                               left_on = 'patient_site_uid', right_on = 'patient_site_uid', how='inner')[['patient_site_uid', \
+#                                     'diagnosis_name','diagnosis_time']]
+
+
+
+returnCovid_dead = dfDiagnosis_dead.merge(dfDemo[['patient_site_uid']], \
+                               left_on = 'patient_site_uid', right_on = 'patient_site_uid', how='inner')[['patient_site_uid', \
+                                     'diagnosis_name','diagnosis_time']]
+
+
+
+
+
+def dem_dic_json(dfDemodata,dfcovid_dead):
     
     
     """
@@ -59,21 +86,37 @@ def dem_dic_json(dfDemodata):
     
     for i in range(len(dfDemodata)):
         
-        ## Initialize the deceased flag as true
-        ## Then check the patient is dead or alive.
+        ## Initialize the deceased flag as 0
+        ## Initialize the time of death as '0000-00-00 00:00:00.
         
-        #setdeceasedFlag = 'true'
+        setdeceasedFlag = 0
         
-        #if(dfDemodata.iloc[i]["patient_vital_status"] == 'alive'):
+        timeofdeath = '0000-00-00 00:00:00'      
+          
+               
+        
+        
+        patient_uid_check = dfDemodata.iloc[i]["patient_site_uid"]
+        
+        
+        ## Check whether the patient is dead or not. If yes set the flag and the
+        ## relevant details accordingly.
+        
+        matchIndex = dfcovid_dead.index[dfcovid_dead.patient_site_uid == patient_uid_check]
+        
+        if(len(matchIndex)>0):
             
-        #    setdeceasedFlag = 'false'
-        
+            setdeceasedFlag = 1 
+
+            timeofdeath =  dfcovid_dead.iloc[matchIndex[0]]["diagnosis_time"]
+                    
+                    
+                   
+                   
         
         
         ## This is done to have only the first day of the month
         ## in the time stamp.
-        
-        
         
         datetime_string = dfDemodata.iloc[i]["patient_birth_date"]
         datetime_list = list(datetime_string)
@@ -108,11 +151,11 @@ def dem_dic_json(dfDemodata):
                            
                            # Indicates if the individual is deceased or not.
                            
-                           #"deceasedBoolean" : setdeceasedFlag,
+                           "deceasedBoolean" : setdeceasedFlag,
                            
                            # Time of death, if applicable (YYYY-MM-DDThh:mm:ss+zz:zz)       
                            
-                           #"deceasedDateTime" : "YYYY-MM-DDThh:mm:ss+zz:zz",
+                           "deceasedDateTime" : timeofdeath,
                                      
                        }
 
@@ -122,9 +165,11 @@ def dem_dic_json(dfDemodata):
         
     return(dict_json)    
         
-        
+     
     
-
+## To fix the issue when gender is empty.    
+    
+dfDemo['patient_sex'].fillna('', inplace = True)
 
 ## Replace patient_birth_date that are empty with 0000-00-00 00:00:00 to avoid issues later.
 
@@ -142,7 +187,7 @@ dfDemo['patient_birth_date'] = dfDemo['patient_birth_date'].replace({'-01':'0000
 ## dictionary.
 
 
-dictJsonDemo = dem_dic_json(dfDemo)    
+dictJsonDemo = dem_dic_json(dfDemo,returnCovid_dead)    
 
 
 # ## Create the json file.
