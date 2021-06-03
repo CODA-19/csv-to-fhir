@@ -29,18 +29,30 @@ import csv as cv
 ## Define the paths (The paths here are those that considered the CITADEL infrastructure)
 
 
-pathOfLabfile = '/data8/network_mount/S/CODA19_Anon_csv/lab_data.csv'
-pathofLabJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files_Nov_17/lab_data.json'
+#pathOfLabfile = '/data8/network_mount/S/CODA19_Anon_csv/april_data/lab_data.csv'
+#pathofEpifile = '/data8/network_mount/S/CODA19_Anon_csv/april_data/episode_data.csv'
+#pathofLabJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files_Apr_8/lab_data.json'
 
+
+
+pathOfLabfile = '/data8/network_mount/S/CODA19_Anon_csv/encrypted_data/lab_data.csv'
+pathofEpifile = '/data8/network_mount/S/CODA19_Anon_csv/encrypted_data/episode_data.csv'
+pathofLabJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files/lab_data.json'
 
 
 path_to_dictionary = '/data8/projets/ChasseM_CODA19_1014582/fhir/code/rdas/files_mapping/chum.json'
+
+
+
 
 
 ## Load and process (if required) the data using Pandas and the csv file.
 ## Provides a dataframe.
 
 dfLab = pd.read_csv(pathOfLabfile)
+
+dfEpi = pd.read_csv(pathofEpifile)
+
 
 
 
@@ -115,6 +127,10 @@ def lab_dic_json(dfLabData,dic_chum):
         ## Fetch the array/list name.
         
         key_exist_loinc = dic_chum.get("labName","None")
+        
+        indexfor_episode = dfEpi[dfEpi['patient_site_uid']== dfLabData.iloc[i]["patient_site_uid"]].index
+        
+        #episode_uid = dfEpi.iloc[indexfor_episode[0]]['episode_admission_uid']
         
         
         if(key_exist_loinc == 'None'):
@@ -208,7 +224,7 @@ def lab_dic_json(dfLabData,dic_chum):
                             
                             # Patient associated with the observation
                             
-                            "subject" : {"reference" : str(dfLabData.iloc[i]["patient_site_uid"])},
+                            "subject" : {"reference" : 'Patient' + '/' + str(dfLabData.iloc[i]["patient_site_uid"])},
                             
                            
                             # Clinical episode associated with the observation (if possible)

@@ -20,10 +20,15 @@ import csv as cv
 ## Define the paths (The paths here are those that considered the CITADEL infrastructure)
 
 
-pathOfPatientfile = '/data8/network_mount/S/CODA19_Anon_csv/march_data/patient_data.csv'
-pathOfDiagnosisfile = '/data8/network_mount/S/CODA19_Anon_csv/march_data/diagnosis_data.csv'
+#pathOfPatientfile = '/data8/network_mount/S/CODA19_Anon_csv/april_16_data/patient_data.csv'
+#pathOfDiagnosisfile = '/data8/network_mount/S/CODA19_Anon_csv/april_16_data/diagnosis_data.csv'
+#pathofDemoJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files_Apr_16/demographic_data.json'
 
-pathofDemoJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files_Mar_18/demographic_data.json'
+
+
+pathOfPatientfile = '/data8/network_mount/S/CODA19_Anon_csv/encrypted_data/patient_data.csv'
+pathOfDiagnosisfile = '/data8/network_mount/S/CODA19_Anon_csv/encrypted_data/diagnosis_data.csv'
+pathofDemoJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files/demographic_data.json'
 
 
 ## Load and process (if required) the data using Pandas and the csv file.
@@ -89,12 +94,13 @@ def dem_dic_json(dfDemodata,dfcovid_dead):
         ## Initialize the deceased flag as 0
         ## Initialize the time of death as '0000-00-00 00:00:00.
         
-        setdeceasedFlag = 0
+        setdeceasedFlag = 'false'
         
-        timeofdeath = '0000-00-00 00:00:00'      
+        #timeofdeath = '0000-00-00 00:00:00'
+        timeofdeath = 'null'
           
                
-        
+        sexdetail = 'unknown'
         
         patient_uid_check = dfDemodata.iloc[i]["patient_site_uid"]
         
@@ -106,13 +112,21 @@ def dem_dic_json(dfDemodata,dfcovid_dead):
         
         if(len(matchIndex)>0):
             
-            setdeceasedFlag = 1 
+            setdeceasedFlag = 'true'
 
             timeofdeath =  dfcovid_dead.iloc[matchIndex[0]]["diagnosis_time"]
                     
                     
                    
-                   
+        
+
+        if(dfDemodata.iloc[i]["patient_sex"] == 'male'):
+            
+            sexdetail = 'male'
+            
+        elif(dfDemodata.iloc[i]["patient_sex"] == 'female'):
+            
+            sexdetail = 'female'
         
         
         ## This is done to have only the first day of the month
@@ -141,7 +155,7 @@ def dem_dic_json(dfDemodata,dfcovid_dead):
                           
                            # The gender of the individual: male | female | other | unknown 
                             
-                           "gender" :  dfDemodata.iloc[i]["patient_sex"],                                  
+                           "gender" :  sexdetail,                                  
                                                         
                             
                            # The date of birth of the individual (YYYY-MM-DD)                            

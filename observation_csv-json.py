@@ -32,19 +32,33 @@ import csv as cv
 ## Define the paths (The paths here are those that considered the CITADEL infrastructure)
 
 
-pathOfObservationfile = '/data8/network_mount/S/CODA19_Anon_csv/observation_data.csv'
-#pathofObservationJsonfile = '/data8/network_mount/S/FHIR_json/Final_Oct_21/observation_data.json'
-pathofObservationJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files_Nov_17/observation_data.json'
+#pathOfObservationfile = '/data8/network_mount/S/CODA19_Anon_csv/april_data/observation_data.csv'
+#pathofObservationJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files_Apr_8/observation_data.json'
+#pathofEpifile = '/data8/network_mount/S/CODA19_Anon_csv/april_data/episode_data.csv'
+
+
+
+pathOfObservationfile = '/data8/network_mount/S/CODA19_Anon_csv/encrypted_data/observation_data.csv'
+pathofEpifile = '/data8/network_mount/S/CODA19_Anon_csv/encrypted_data/episode_data.csv'
+pathofObservationJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files/observation_data.json'
+
 
 
 
 path_to_dictionary = '/data8/projets/ChasseM_CODA19_1014582/fhir/code/rdas/files_mapping/chum.json'
 
 
+
+
+
+
 ## Load and process (if required) the data using Pandas and the csv file.
 ## Provides a dataframe.
 
 dfObservation = pd.read_csv(pathOfObservationfile)
+
+
+dfEpi = pd.read_csv(pathofEpifile)
 
 
 
@@ -134,6 +148,7 @@ def observation_dic_json(dfObservation, dic_chum):
             for k in range(len(dic_chum["observationNameUnit"])):  
                 
                 
+                            
               sub_string_to_check = dic_chum["observationNameUnit"][k]['raw_string_lower'][:3] 
               
               if(sub_string_to_check == 'pou'):
@@ -171,6 +186,14 @@ def observation_dic_json(dfObservation, dic_chum):
                    break
         
         
+        
+        
+        
+        indexfor_episode = dfEpi[dfEpi['patient_site_uid']== dfObservation.iloc[i]["patient_site_uid"]].index
+        
+        #episode_uid = dfEpi.iloc[indexfor_episode[0]]['episode_admission_uid']
+        
+        
     
         single_json = {
                   
@@ -193,7 +216,7 @@ def observation_dic_json(dfObservation, dic_chum):
                                                   
                           # Patient associated with the observation
                             
-                          "subject" : {"reference" : str(dfObservation.iloc[i]["patient_site_uid"])},
+                          "subject" : {"reference" : "Patient" + '/' + str(dfObservation.iloc[i]["patient_site_uid"])},
                          
                        
                           # Clinical episode associated with the observation (if possible) 

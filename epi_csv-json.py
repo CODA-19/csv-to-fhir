@@ -23,6 +23,7 @@ import numpy as np
 import pandas as pd
 import json as js
 import csv as cv
+import enum
 
 
 ## Define the paths (The paths here are those that considered the CITADEL infrastructure)
@@ -33,11 +34,22 @@ import csv as cv
 
 
 
-pathOfEpifile = '/data8/network_mount/S/CODA19_Anon_csv/episode_data.csv'
-pathofEpiJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files_Feb_10/episode_data.json'
+#pathOfEpifile = '/data8/network_mount/S/CODA19_Anon_csv/april_16_data/episode_data.csv'
+#pathofEpiJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files_Apr_16/episode_data.json'
+
+
+pathOfEpifile = '/data8/network_mount/S/CODA19_Anon_csv/encrypted_data/episode_data.csv'
+pathofEpiJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files/episode_data.json'
 
 
 path_to_dictionary = '/data8/projets/ChasseM_CODA19_1014582/fhir/code/rdas/files_mapping/chum.json'
+
+
+
+location_dict = {'HU' : '016873897351baee68fe5e9fa80ec993c64d4d1b', 'CHR':'cd411fa348c52293e1d0c96328c3069234e91037', \
+                 'ICU': 'e70a812f1f88c5dedeb74a666923b6ae3d0b66da' , 'CCU' : '24342cdc69f186636c4fe5c694bc5314ece67a83' , \
+                 'CATH': '3e5d20d40084825438cf4fd23ff7008ddd67c835' , 'ER' : '284d5c512615ea2ebc89111076c0e99403f6fd66' , \
+                 'UNK': '0000000000000000000000000000000000000000'}
 
 
 ## Load and process (if required) the data using Pandas and the csv file.
@@ -147,14 +159,10 @@ def epi_dic_json(dfepisode,dic_chum):
                else:
                    
                    system_input = 'http://terminology.hl7.org/ValueSet/v3-ServiceDeliveryLocationRoleType'            
-                   code_input = ''                        
+                   code_input = 'UNK'                        
                    display_complete_input = 'no code available'                
-                   
-        
-         
-        
-        
-        
+          
+                 
         
         single_json = { 
                 
@@ -170,14 +178,14 @@ def epi_dic_json(dfepisode,dic_chum):
                                       "display": dfepisode.iloc[i]["episode_description"]},        
                                       
                            
-                           "subject":{"reference": str(dfepisode.iloc[i]["patient_site_uid"])},
+                           "subject":{"reference": 'Patient' + '/' + str(dfepisode.iloc[i]["patient_site_uid"])},
                            
                            "location": [ { 
                                                                             
                                          "location":{ 
                                          
                                          "system": 'https://www.hl7.org/fhir/v3/ServiceDeliveryLocationRoleType/vs.html',        
-                                         "reference": code_input,
+                                         "reference": 'Location' + '/' + str(location_dict[code_input]),
                                          "display":  display_complete_input
                                          
                                        },
@@ -217,12 +225,20 @@ def epi_dic_json(dfepisode,dic_chum):
 
 
 
-## load thw dictionary
+## load the dictionary
   
     
 dict_data = read_dictionary(path_to_dictionary) 
 
 
+## Fill the missing episode_unit_type with unknown.
+
+dfEpi['episode_unit_type'].fillna('unknown', inplace = True)
+
+
+## Replace episode_description that are na  with "" to avoid issues later.
+
+dfEpi['episode_description'].fillna('', inplace = True)
 
 
 

@@ -29,9 +29,16 @@ import csv as cv
 ## Define the paths (The paths here are those that considered the CITADEL infrastructure)
 
 
-pathOfPcrfile = '/data8/network_mount/S/CODA19_Anon_csv/pcr_data.csv'
-#pathofPcrJsonfile = '/data8/network_mount/S/FHIR_json/Final_Oct_21/pcr_data.json'
-pathofPcrJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files_Nov_17/pcr_data.json'
+#pathOfPcrfile = '/data8/network_mount/S/CODA19_Anon_csv/april_16_data/pcr_data.csv'
+#pathofPcrJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files_Apr_16/pcr_data.json'
+#pathofEpifile = '/data8/network_mount/S/CODA19_Anon_csv/april_16_data/episode_data.csv'
+
+
+
+pathOfPcrfile = '/data8/network_mount/S/CODA19_Anon_csv/encrypted_data/pcr_data.csv'
+pathofEpifile = '/data8/network_mount/S/CODA19_Anon_csv/encrypted_data/episode_data.csv'
+pathofPcrJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files/pcr_data.json'
+
 
 
 path_to_dictionary = '/data8/projets/ChasseM_CODA19_1014582/fhir/code/rdas/files_mapping/chum.json'
@@ -42,6 +49,9 @@ path_to_dictionary = '/data8/projets/ChasseM_CODA19_1014582/fhir/code/rdas/files
 ## Provides a dataframe.
 
 dfPcr = pd.read_csv(pathOfPcrfile)
+
+dfEpi = pd.read_csv(pathofEpifile)
+
 
 
 
@@ -110,6 +120,13 @@ def pcr_dic_json(dfPcrData, dic_chum):
         ## Fetch the array/list name.
         
         key_exist = dic_chum.get("pcrResultStatus","None")
+        
+        
+        #indexfor_episode = dfEpi[dfEpi['patient_site_uid']== dfPcr.iloc[i]["patient_site_uid"]].index
+        
+        #episode_uid = dfEpi.iloc[indexfor_episode[0]]['episode_admission_uid']
+        
+       
         
         
         if(key_exist == 'None'):
@@ -245,7 +262,7 @@ def pcr_dic_json(dfPcrData, dic_chum):
                             
                             # This needs to be associated with patient_site_id (how we can join labs to the patient table)
                             
-                            "subject" : {"reference" : str(dfPcrData.iloc[i]["patient_site_uid"])},
+                            "subject" : {"reference" : "Patient" + '/' + str(dfPcrData.iloc[i]["patient_site_uid"])},
                             
                             # Clinical episode associated with the observation (if possible)
                             
@@ -281,11 +298,17 @@ def pcr_dic_json(dfPcrData, dic_chum):
                                
                                },
                             
-                            "valueQuantity": {"value": dfPcrData.iloc[i]["pcr_result_value"],
-                                              "unit": "",
-                                              "system": "",
-                                              "code": ""}
                                     
+                            
+                            # Value and units of measure
+                            
+                           "interpretation": [{
+                                            "coding": [{
+                                            "system": system_input,
+                                            "code": code_input,
+                                            "display": dfPcrData.iloc[i]["pcr_result_value"]
+                                              }]
+                                            }]
                                      
                                      
                        }
@@ -309,7 +332,11 @@ dict_data = read_dictionary(path_to_dictionary)
 #for i in dict_data["pcrResultStatus"]: 
     
     #print(i)
-   
+ 
+
+## Replace pcr_name value that are empty with none.    
+    
+dfPcr['pcr_name'].fillna('None', inplace = True)    
 
 ## Replace pcr_result_value that are empty with none to avoid issues later.
 
