@@ -95,7 +95,9 @@ def dem_dic_json(dfDemodata,dfcovid_dead):
         ## Initialize the deceased flag as 0
         ## Initialize the time of death as '0000-00-00 00:00:00.
         
-        setdeceasedFlag = 'false'
+        #setdeceasedFlag = 'false'
+        
+        setdeceasedFlag = False
         
         #timeofdeath = '0000-00-00 00:00:00'
         timeofdeath = 'null'
@@ -113,7 +115,9 @@ def dem_dic_json(dfDemodata,dfcovid_dead):
         
         if(len(matchIndex)>0):
             
-            setdeceasedFlag = 'true'
+            #setdeceasedFlag = 'true'
+            
+            setdeceasedFlag = True
 
             timeofdeath =  dfcovid_dead.iloc[matchIndex[0]]["diagnosis_time"]
                     
