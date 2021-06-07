@@ -143,7 +143,7 @@ def dem_dic_json(dfDemodata,dfcovid_dead):
         
         datetime_input = ''.join(datetime_list)
         
-        print(datetime_input)
+        
         
         single_json = { 
                 
