@@ -199,16 +199,10 @@ def epi_dic_json(dfepisode,dic_chum):
                                        
                                        }
                                    
-                                   ],
+                                   ],                  
                            
                            
-                           
-                           "reasonCode": [
-                                	{
-                                	  "text": "This patient was hospitalized for Condition X"
-                                	}
-                           ],
-                             
+                            
                                                      
                            "period": {"start":  dfepisode.iloc[i]["episode_start_time"] ,
                                         "end": dfepisode.iloc[i]["episode_end_time"] }
