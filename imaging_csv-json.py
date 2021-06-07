@@ -33,8 +33,11 @@ import csv as cv
 
 
 
-pathOfImagingfile = '/data8/network_mount/S/CODA19_Anon_csv/imaging_data.csv'
-pathofImagingJsonfile = '/data8/network_mount/S/FHIR_json/Final_Oct_21/imaging_data.json'
+pathOfImagingfile = '/data8/network_mount/S/CODA19_Anon_csv/encrypted_data/imaging_data.csv'
+pathofImagingJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files/imaging_data.json'
+
+
+path_to_dictionary = '/data8/projets/ChasseM_CODA19_1014582/fhir/code/rdas/files_mapping/chum.json'
 
 
 ## Load and process (if required) the data using Pandas and the csv file.
@@ -67,7 +70,7 @@ def imaging_dic_json(dfImaging):
     
     for i in range(len(dfImaging)):
     
-    
+        
     
         single_json = { 
                           
@@ -81,7 +84,7 @@ def imaging_dic_json(dfImaging):
                           
      
                           "subject": {
-                            "reference": "Patient/patid"
+                            "reference": 'Patient' + '/' + str(dfImaging.iloc[i]["patient_site_uid"])
                           },
                           
                           
