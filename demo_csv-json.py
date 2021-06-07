@@ -15,6 +15,7 @@ import numpy as np
 import pandas as pd
 import json as js
 import csv as cv
+import datetime 
 
 
 ## Define the paths (The paths here are those that considered the CITADEL infrastructure)
@@ -134,12 +135,15 @@ def dem_dic_json(dfDemodata,dfcovid_dead):
         
         datetime_string = dfDemodata.iloc[i]["patient_birth_date"]
         datetime_list = list(datetime_string)
-        datetime_list[8]='0'
-        datetime_list[9]='1'
-        
+        #datetime_list[8]='0'
+        #datetime_list[9]='1'
+        datetime_list = datetime_list[0:7]
+                
         
         
         datetime_input = ''.join(datetime_list)
+        
+        print(datetime_input)
         
         single_json = { 
                 
