@@ -35,13 +35,12 @@ import csv as cv
 ## Define the paths (The paths here are those that considered the CITADEL infrastructure)
 
 
-pathOfDiagnosisfile = '/data8/network_mount/S/CODA19_Anon_csv/diagnosis_data.csv'
-#pathofDiagnosisJsonfile = '/data8/network_mount/S/FHIR_json/Final_Oct_21/diagnosis_data.json'
-pathofDiagnosisJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files_Nov_17/diagnosis_data.json'
+
+pathOfDiagnosisfile = '/data8/network_mount/S/CODA19_Anon_csv/encrypted_data/diagnosis_data.csv'
+pathofDiagnosisJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files/diagnosis_data.json'
 
 
 path_to_dictionary = '/data8/projets/ChasseM_CODA19_1014582/fhir/code/rdas/files_mapping/chum.json'
-
 
 
 
@@ -127,7 +126,7 @@ def diagnosis_dic_json(dfDiagnosis):
                            
                             "subject": {
                                  
-                               "reference": "Patient/example"
+                               "reference": 'Patient' + '/' + str(dfDiagnosis.iloc[i]["patient_site_uid"])
                             },
                           
 
