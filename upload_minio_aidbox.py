@@ -47,6 +47,35 @@ def establish_minio_connect():
    
    return sboto
     
+
+
+
+def upload_file_minio(s3,filename):
+
+   """
+    
+     This method uploads a file to a specified bucket in the Minio
+     
+     It is assumed here that the Minio has a bucket by the name
+     chumtestbucket. Plus the file to be fetched and uploaded will
+     have the names filename, and filename
+     respectively (same names)
+     
+     It is assumed here that the file that is being fetched is in the working
+     directory of the user.
+     
+     The location of the file in the Minio would be chumtestbucket/filename
+     in the present case.
+     
+     Input argument: s3 type object
+                     filename type string
+     Return: None.
+
+   """
+
+   s3.Bucket('chumtestbucket').upload_file(filename,filename)
+
+
     
 
 
@@ -59,6 +88,9 @@ def create_presigned_url(bucket_name, object_name, expiration=3600):
     :param object_name: string
     :param expiration: Time in seconds for the presigned URL to remain valid
     :return: Presigned URL as string. If error, returns None.
+    
+    
+    Kept the connection separate here.
     
     """
 
@@ -78,19 +110,57 @@ def create_presigned_url(bucket_name, object_name, expiration=3600):
 
 
 
+
+def remove_file(s3, filetoremove):
+    
+    
+    """
+    
+    This file will remove a specified file from the
+    bucket chumtestbucket
+    
+    Input argument: s3 type object
+                    filetoremove type string
+                    
+    Return:  obj_to_delete type object              
+    
+    
+    """
+    
+    
+    obj_to_delete = s3.Object('chumtestbucket', filetoremove)
+    
+    return obj_to_delete
+
+
+
+
 # Program entry
 if __name__ == "__main__":
     
     
     
-    ## Establish the connection with Minio (not required here)
+    ## File to upload and file to remove
+    ## specify your file here.
     
-    # s3 = establish_minio_connect()
+    filetoupload = 'abc.ndjson.gz'
+    filetoremove = 'abc.ndjson.gz'
+    
+    
+    ## Establish the connection with Minio 
+    
+    s3 = establish_minio_connect()
+    
+    
+    ## Upload files to the Minio
+    
+    upload_file_minio(s3, filetoupload)
+    
     
     ## Call the create url function by providing the name of the bucket in Minio and the desired
     ## file.
     
-    url = create_presigned_url('chumtestbucket', 'culture_data.json.ndjson.gz')
+    url = create_presigned_url('chumtestbucket', filetoupload)
     
     ## Create the payload
     
@@ -107,6 +177,12 @@ if __name__ == "__main__":
     ## Perform the upload task to the Aidbox.
     
     requests.post("http://recherche-coda19-orange:8888/$load",auth=requests.auth.HTTPBasicAuth('python_load_script','chum123'),json=payload)
+    
+    
+    
+    ## Remove file from the Minio bucket
+    
+    checkremove = remove_file(s3, filetoremove)
     
     
     
