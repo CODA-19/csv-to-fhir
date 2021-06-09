@@ -41,7 +41,7 @@ def establish_minio_connect():
     
    
     
-   sboto = boto3.resource('s3',aws_access_key_id = 'secret', aws_secret_access_key = 'secret', endpoint_url='http://recherche-coda19-orange:9000',\
+   sboto = boto3.resource('s3',aws_access_key_id = 'secret', aws_secret_access_key = 'secret', endpoint_url='http://recherche-coda19-rouge:9000',\
                    config=Config(signature_version='s3v4'))
    
    
@@ -63,7 +63,7 @@ def create_presigned_url(bucket_name, object_name, expiration=3600):
     """
 
     # Generate a presigned URL for the S3 object
-    s3_client = boto3.client('s3', endpoint_url='http://recherche-coda19-orange:9000',aws_access_key_id = 'secret', aws_secret_access_key = 'secret')
+    s3_client = boto3.client('s3', endpoint_url='http://recherche-coda19-rouge:9000',aws_access_key_id = 'secret', aws_secret_access_key = 'secret')
     
     try:
         response = s3_client.generate_presigned_url('get_object', Params={'Bucket': bucket_name,'Key': object_name}, ExpiresIn=expiration)
