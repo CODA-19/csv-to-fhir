@@ -2,7 +2,7 @@
 
 This repository contains scripts to generate FHIR resources from data in a tabular / relational format.
 
-# In addition this repository will also provide details of the automation approach, involving the following tasks:
+# In addition, this repository will also provide details of the automation approach, involving the following tasks:
   
    *a) Upload a file to a Minio bucket 
     b) Generate the url for the uploaded file
