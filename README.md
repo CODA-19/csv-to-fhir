@@ -1,8 +1,8 @@
-# CODA-19: CSV to FHIR
+# CODA-19: CSV to FHIR and Automation
 
 This repository contains scripts to generate FHIR resources from data in a tabular / relational format.
 
-# In addition, this repository will also provide details of the automation approach, involving the following tasks:
+## In addition, this repository will also provide details of the automation approach, involving the following tasks:
   
    *a) Upload a file to a Minio bucket 
     b) Generate the url for the uploaded file
@@ -16,7 +16,15 @@ This repository contains scripts to generate FHIR resources from data in a tabul
   For clarity, consider the script (https://github.com/CODA-19/csv-to-fhir/blob/master/upload_minio_aidbox.py). Assuming there is a bucket (container) by the name chumtestbucket   which contains a file (ndjson.gz file to upload). In order to create the corresponding URL that would point to the specific file, call the method create_presigned_url. Once     the URL is generated create the payload using the line payload=({"source":url}). Subsequently, access the Aidbox and perform the upload using the lines requests.get() and       requests.post(). 
     
     
+## Scheduling with Crontab
 
+Crontab provides a good option to schedule various tasks. To know more about Crontab consider (https://www.geeksforgeeks.org/crontab-in-linux-with-examples/). Users can specify the day and time for the execution of a specific script. In the present scenario, shell scripts are written for individual tasks and they are then executed sequentially according to the order. Therefore, there are five tasks and we write five different shell scripts (with .sh extension). A typical Crontab command scheduling the five tasks for execution on Saturdays at 7:00 PM would be represented in the following manner:
+
+00 19 * * SAT /usr/sbin/runuser -l rxyz -c '/usr/local/sbin/generate_csv.sh' && '/usr/local/sbin/generate_encrypted.sh' && '/usr/local/sbin/generate_json.sh’ && '/usr/local/sbin/create_ndjson.sh’ && '/usr/local/sbin/ndjso_to_zip.sh’
+
+Where rxyz is the user name, the shell script file names (with .sh) are self-explanatory. Users should verify how they have installed the packages and the path of their files.
+    
+    
 ## Requirements
 
 Python v3
