@@ -22,7 +22,7 @@ Crontab provides a good option to schedule various tasks. To know more about Cro
 
 00 19 * * SAT /usr/sbin/runuser -l rxyz -c '/usr/local/sbin/generate_csv.sh' && '/usr/local/sbin/generate_encrypted.sh' && '/usr/local/sbin/generate_json.sh’ && '/usr/local/sbin/create_ndjson.sh’ && '/usr/local/sbin/ndjson_to_zip.sh’
 
-Where rxyz is the user name, the shell script file names (with .sh) are self-explanatory. Users should verify how they have installed the packages and the path of their files. A shell script example that uses the Anaconda environment is presented here  https://github.com/CODA-19/csv-to-fhir/blob/master/cron_example_json.sh A native Python installation that does not involve Anaconda will not require the sourcing of Anaconda bashrc as performed in the given example. It depends on how the users configure and use the various packages in terms of the shell scripts for scheduling. For instance, consider the case described in . The last script does not even use Python.
+Where rxyz is the user name, the shell script file names (with .sh) are self-explanatory. Users should verify how they have installed the packages and the path of their files. A shell script example that uses the Anaconda environment is presented here  https://github.com/CODA-19/csv-to-fhir/blob/master/cron_example_json.sh A native Python installation that does not involve Anaconda and will not require the sourcing of Anaconda bashrc as performed in the given example. It depends on how the users configure and use the various packages in terms of the shell scripts for scheduling. For instance, consider the case described in . The last script does not even use Python.
     
     
 ## Requirements
