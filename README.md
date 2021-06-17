@@ -18,7 +18,7 @@ This repository contains scripts to generate FHIR resources from data in a tabul
     
 ## Scheduling with Crontab
 
-Crontab provides a good option to schedule various tasks. To know more about Crontab consider (https://www.geeksforgeeks.org/crontab-in-linux-with-examples/). Users can specify the day and time for the execution of a specific script. In the present scenario, shell scripts are written for individual tasks and they are then executed sequentially according to the order. Therefore, there are five tasks and we write five different shell scripts (with .sh extension). A typical Crontab command scheduling the five tasks for execution on Saturdays at 7:00 PM would be represented in the following manner:
+Crontab provides a good option to schedule various tasks. To know more about Crontab consider (https://www.geeksforgeeks.org/crontab-in-linux-with-examples/). Users can specify the day and time for the execution of a specific script. In the present scenario, shell scripts are written for individual tasks and they are then executed sequentially according to the order. First, the csvs are created, the files are then encrypted, converted to FHIR-Json, subsequently converted to ndjson, and finally zipped. Therefore, there are five tasks and we write five different shell scripts (with .sh extension). A typical Crontab command scheduling the five tasks for execution on Saturdays at 7:00 PM would be represented in the following manner:
 
 00 19 * * SAT /usr/sbin/runuser -l rxyz -c '/usr/local/sbin/generate_csv.sh' && '/usr/local/sbin/generate_encrypted.sh' && '/usr/local/sbin/generate_json.sh’ && '/usr/local/sbin/create_ndjson.sh’ && '/usr/local/sbin/ndjson_to_zip.sh’
 
