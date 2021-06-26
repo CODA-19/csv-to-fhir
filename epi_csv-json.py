@@ -24,13 +24,11 @@ import pandas as pd
 import json as js
 import csv as cv
 import enum
+import json
 
 
 ## Define the paths (The paths here are those that considered the CITADEL infrastructure)
 
-
-
-#pathOfEpifile = '/data8/projets/Mila_covid19/output/covidb_anon/csv/episode_data.csv'
 
 
 
@@ -46,10 +44,13 @@ path_to_dictionary = '/data8/projets/ChasseM_CODA19_1014582/fhir/code/rdas/files
 
 
 
-location_dict = {'HU' : '016873897351baee68fe5e9fa80ec993c64d4d1b', 'CHR':'cd411fa348c52293e1d0c96328c3069234e91037', \
-                 'ICU': 'e70a812f1f88c5dedeb74a666923b6ae3d0b66da' , 'CCU' : '24342cdc69f186636c4fe5c694bc5314ece67a83' , \
-                 'CATH': '3e5d20d40084825438cf4fd23ff7008ddd67c835' , 'ER' : '284d5c512615ea2ebc89111076c0e99403f6fd66' , \
-                 'UNK': '0000000000000000000000000000000000000000'}
+
+# Read the location json file
+
+with open("location.json","r") as f:
+
+     location_dict = json.load(f)
+
 
 
 ## Load and process (if required) the data using Pandas and the csv file.
@@ -92,6 +93,95 @@ def read_dictionary(path_to_dictionary_file):
 
 
 
+
+
+def process_epi_df(dfEpitoprocess):
+    
+      
+    ## An extra field is being added here to the data frame which would be used later to 
+    ## store flag whether the row would be used or not in the json
+    
+    dfEpitoprocess['considered'] = 0
+    
+    
+    
+    ## Initiate the episode dataframe processing to consider the array of location case.
+    
+    for i in range(len(dfEpitoprocess)):
+        
+        
+        
+        ## If the row has not been considered so far then do
+        
+        if(dfEpitoprocess.loc[i,'considered'] == 0):
+            
+            
+            ## Pick the admission uid
+            
+            admId = dfEpitoprocess.loc[i,'episode_admission_uid']
+            
+        else:
+            
+            continue
+        
+        
+        ## Consider all the indices that are associated with the admission uid
+        
+        rowsReturned = dfEpitoprocess[dfEpitoprocess['episode_admission_uid']== admId].index
+        
+        
+        ## If the number of indices is more than one then do
+        
+        if(len(rowsReturned) > 1):
+            
+            
+            strunit_type = ''
+            strstart_time = ''
+            strend_time = ''
+            
+            counterFalg = 0 
+            
+            for j in rowsReturned:
+                
+                if counterFalg == 0:
+                    
+                   strunit_type = dfEpitoprocess.loc[j,'episode_unit_type']          
+                   strstart_time = dfEpitoprocess.loc[j,'episode_start_time']
+                   strend_time = dfEpitoprocess.loc[j,'episode_end_time'] 
+            
+                   counterFalg = counterFalg + 1    
+            
+                else:
+                    
+                   ## After constructing different strings, these rows would be
+                   ## dropped.
+                    
+                   strunit_type = strunit_type +  ',' + dfEpitoprocess.loc[j,'episode_unit_type']          
+                   strstart_time = strstart_time + ',' + str(dfEpitoprocess.loc[j,'episode_start_time']) ## Some are float which is strange
+                   strend_time = strend_time  + ',' + str(dfEpitoprocess.loc[j,'episode_end_time']) ## Some are float which is strange
+                   dfEpitoprocess.loc[j,'considered'] = 1
+                   
+                   
+                   counterFalg = counterFalg + 1
+                   
+                
+                ## Once the strings are complete it is assigned to the first row index
+                   
+                dfEpitoprocess.loc[rowsReturned[0],'episode_unit_type'] = strunit_type
+                dfEpitoprocess.loc[rowsReturned[0],'episode_start_time'] = strstart_time
+                dfEpitoprocess.loc[rowsReturned[0],'episode_end_time'] = strend_time   
+                    
+    
+    
+    ## Only take those rows that have the  flag set as 0
+    
+    dfmodifiedEpi = dfEpitoprocess[dfEpitoprocess["considered"]==0]
+
+    return dfmodifiedEpi
+
+
+
+
     
     
 def epi_dic_json(dfepisode,dic_chum):
@@ -126,7 +216,7 @@ def epi_dic_json(dfepisode,dic_chum):
             
             system_input = 'http://terminology.hl7.org/ValueSet/v3-ServiceDeliveryLocationRoleType'            
             code_input = ''                        
-            display_complete_input = 'no code available'
+            display_complete_input = ''
             
             
             
@@ -160,7 +250,7 @@ def epi_dic_json(dfepisode,dic_chum):
                    
                    system_input = 'http://terminology.hl7.org/ValueSet/v3-ServiceDeliveryLocationRoleType'            
                    code_input = 'UNK'                        
-                   display_complete_input = 'no code available'                
+                   display_complete_input = ''                
           
                  
         
@@ -170,7 +260,13 @@ def epi_dic_json(dfepisode,dic_chum):
                            "resourceType" : "Encounter",
                            
                            "id": dfepisode.iloc[i]["episode_admission_uid"],    ## dfepisode.iloc[i]["patient_site_uid"]                                   
-                                                              
+                               
+                           
+                           ## One of https://www.hl7.org/fhir/valueset-encounter-status.html
+                           ## planned, arrived, triaged, in-progress, cancelled, unknown
+                                                      
+                           "status": "finished",
+                           
                                                                                   
                            "class": {"system": "http://terminology.hi17.org/CodeSystem/v3-ActCode",                     
                                                                             
@@ -179,35 +275,73 @@ def epi_dic_json(dfepisode,dic_chum):
                                       
                            
                            "subject":{"reference": 'Patient' + '/' + str(dfepisode.iloc[i]["patient_site_uid"])},
+ 
+    
+## To accomodate array for all loactions associated with the encounter
+                          
+#                           "location": [ { 
+#                                                                            
+#                                         "location":{ 
+#                                         
+#                                         "system": 'https://www.hl7.org/fhir/v3/ServiceDeliveryLocationRoleType/vs.html',        
+#                                         "reference": 'Location' + '/' + str(location_dict[code_input]),
+#                                         "display":  display_complete_input
+#                                         
+#                                       },
+#                                   
+#                                       "status": "completed",
+#                                       
+#                                       "period": {
+#                                                  "start": dfepisode.iloc[i]["episode_start_time"],
+#                                                  "end": dfepisode.iloc[i]["episode_end_time"]
+#                                                  }
+#                                       
+#                                       }
+#                                   
+#                                   ],                  
                            
-                           "location": [ { 
-                                                                            
-                                         "location":{ 
-                                         
-                                         "system": 'https://www.hl7.org/fhir/v3/ServiceDeliveryLocationRoleType/vs.html',        
-                                         "reference": 'Location' + '/' + str(location_dict[code_input]),
-                                         "display":  display_complete_input
-                                         
-                                       },
-                                   
-                                       "status": "completed",
-                                       
-                                       "period": {
-                                                  "start": dfepisode.iloc[i]["episode_start_time"],
-                                                  "end": dfepisode.iloc[i]["episode_end_time"]
-                                                  }
-                                       
-                                       }
-                                   
-                                   ],                  
-                           
-                           
+## To accomodate array for all loactions associated with the encounter                           
                             
                                                      
-                           "period": {"start":  dfepisode.iloc[i]["episode_start_time"] ,
-                                        "end": dfepisode.iloc[i]["episode_end_time"] }
+#                           "period": {"start":  dfepisode.iloc[i]["episode_start_time"] ,
+#                                        "end": dfepisode.iloc[i]["episode_end_time"] }
+                           
+                           
+                             "period": {"start": min(str(dfepisode.iloc[i]["episode_start_time"]).split(',')) ,
+                                        "end": max(str(dfepisode.iloc[i]["episode_end_time"]).split(','))}
                                                 
                        }
+                           
+        
+        ## The following lines except the json update were added to consider cases where there could be multiple locations associated 
+        ## with an encounter. 
+                   
+                           
+        single_json["location"] = []                   
+                           
+        element_count = dfepisode.iloc[i]["episode_unit_type"].split(",")
+
+        for m in range(len(element_count)):
+
+          for k in range(len(dic_chum["unitType"])):
+
+             string_check = dic_chum["unitType"][k]['display_string'][:5]
+
+             if(string_check == (dfepisode.iloc[i]["episode_unit_type"].split(",")[m][:5])):
+
+                    system_input = dic_chum["unitType"][k]['fhir_reference_url']
+                    code_input = dic_chum["unitType"][k]['fhir_code']   
+                    display_complete_input = dic_chum["unitType"][k]['display_string']
+                    
+                    episode_start =  str(dfepisode.iloc[i]["episode_start_time"]).split(",")[m]
+                    episode_end =  str(dfepisode.iloc[i]["episode_end_time"]).split(",")[m]
+                    
+                    single_json["location"].append({"location":{"system": system_input, "reference" : 'Location' + '/' + \
+                               str(location_dict[code_input]), "display" : display_complete_input},  "status": "completed", \
+                               "period":{"start":episode_start,"end":episode_end}})
+                                         
+                           
+                    break       
     
         dict_json.update({str(i) : single_json})
     
@@ -235,12 +369,17 @@ dfEpi['episode_unit_type'].fillna('unknown', inplace = True)
 dfEpi['episode_description'].fillna('', inplace = True)
 
 
+## Process the dataframe for location merger.
+
+dfEpi_forlocation = process_epi_df(dfEpi)
+
+
 
 ## Call the function to create the required json structure using
 ## dictionary.
 
 
-dictJsonEpi = epi_dic_json(dfEpi,dict_data)
+dictJsonEpi = epi_dic_json(dfEpi_forlocation,dict_data)
 
 ## dictJsonEpi["17808"] #check
        

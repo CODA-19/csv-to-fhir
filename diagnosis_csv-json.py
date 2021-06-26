@@ -30,6 +30,8 @@ import numpy as np
 import pandas as pd
 import json as js
 import csv as cv
+import datetime
+from datetime import date
 
 
 ## Define the paths (The paths here are those that considered the CITADEL infrastructure)
@@ -37,9 +39,9 @@ import csv as cv
 
 
 pathOfDiagnosisfile = '/data8/network_mount/S/CODA19_Anon_csv/encrypted_data/diagnosis_data.csv'
+pathOfPatientfile = '/data8/network_mount/S/CODA19_Anon_csv/encrypted_data/patient_data.csv'
+
 pathofDiagnosisJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files/diagnosis_data.json'
-
-
 path_to_dictionary = '/data8/projets/ChasseM_CODA19_1014582/fhir/code/rdas/files_mapping/chum.json'
 
 
@@ -48,6 +50,53 @@ path_to_dictionary = '/data8/projets/ChasseM_CODA19_1014582/fhir/code/rdas/files
 ## Provides a dataframe.
 
 dfDiagnosis = pd.read_csv(pathOfDiagnosisfile)
+
+
+dfDemo = pd.read_csv(pathOfPatientfile)
+
+
+
+
+
+
+
+def calculate_age(born, detecteddate):
+    
+    
+    """
+    
+    This method calculates the age of the patient
+    when an ailment was first detected. 
+    
+    Input arguments: born    :datetime object
+                     detecteddate : datetime
+    
+    
+    Returns:
+        
+            Age: int
+    
+    """
+    
+    
+    
+    try:
+       
+        birthday = born.replace(year = detecteddate.year)
+            
+        
+    except ValueError:
+        
+        birthday = born.replace(year = detecteddate.year, month = born.month + 1, day=1)
+
+    if birthday > born:
+        
+        return detecteddate.year - born.year - 1
+    
+    else:
+        
+        return detecteddate.year - born.year
+        
 
 
 
@@ -87,7 +136,7 @@ def read_dictionary(path_to_dictionary_file):
 
 
 
-def diagnosis_dic_json(dfDiagnosis):
+def diagnosis_dic_json(dfDiagnosis, dfPatient):
     
     
         
@@ -110,7 +159,23 @@ def diagnosis_dic_json(dfDiagnosis):
     
     for i in range(len(dfDiagnosis)):
     
+        
+        
+        # Pick the patient uid from the diagnosis data and find the relevant data
+        # in the patient table, such as the birthdate.
+        
+        check_patient_uid = dfDiagnosis.iloc[i]["patient_site_uid"]        
+        index_of_interest = dfPatient.index[dfPatient.patient_site_uid == check_patient_uid]
+        
+        
+        # The diagnosis date and time.
+        
+        diagnosis_date = datetime.datetime.strptime(dfDiagnosis.iloc[i]["diagnosis_time"],'%Y-%m-%d %H:%M:%S')
+        
+         
+        # Calculate the age when the problem was diagnosed.
     
+        patientage = calculate_age(datetime.datetime.strptime(dfDemo["patient_birth_date"][index_of_interest[0]],'%Y-%m-%d'),diagnosis_date)
 
         single_json = { 
                              
@@ -135,8 +200,20 @@ def diagnosis_dic_json(dfDiagnosis):
                             "encounter": {"reference": "Encounter/2314234"},
 
                       
-                            "onsetString": dfDiagnosis.iloc[i]["diagnosis_time"],
+                            "onsetDateTime": dfDiagnosis.iloc[i]["diagnosis_time"],
                           
+                            
+                            # Age at which the Condition began to occur
+                            # Precalculated with birthDate (Resource/Patient)
+                            
+                            "onsetAge": {
+                            
+                                "value": patientage,
+                                "unit": "years",
+                                "system": "https://ucum.org/ucum.html",
+                                "code": "a"
+                              },
+                            
                           
                             "code": {
                               
@@ -165,11 +242,18 @@ def diagnosis_dic_json(dfDiagnosis):
 
 
 
+
+## For cases where the entries are -01
+
+dfDemo['patient_birth_date'] = dfDemo['patient_birth_date'].replace({'-01':'1900-01-01'})
+
+
+
 ## Call the function to create the required json structure using
 ## dictionary.
 
 
-dictJsonDiagnosis = diagnosis_dic_json(dfDiagnosis)    
+dictJsonDiagnosis = diagnosis_dic_json(dfDiagnosis, dfDemo)    
 
 
 ## Create the json file.

@@ -15,15 +15,10 @@ import numpy as np
 import pandas as pd
 import json as js
 import csv as cv
-import datetime 
+from datetime import datetime
 
 
 ## Define the paths (The paths here are those that considered the CITADEL infrastructure)
-
-
-#pathOfPatientfile = '/data8/network_mount/S/CODA19_Anon_csv/april_16_data/patient_data.csv'
-#pathOfDiagnosisfile = '/data8/network_mount/S/CODA19_Anon_csv/april_16_data/diagnosis_data.csv'
-#pathofDemoJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files_Apr_16/demographic_data.json'
 
 
 
@@ -67,6 +62,7 @@ returnCovid_dead = dfDiagnosis_dead.merge(dfDemo[['patient_site_uid']], \
 
 
 
+
 def dem_dic_json(dfDemodata,dfcovid_dead):
     
     
@@ -97,10 +93,14 @@ def dem_dic_json(dfDemodata,dfcovid_dead):
         
         #setdeceasedFlag = 'false'
         
-        setdeceasedFlag = False
+        
+        ## This is being modified to follow the FHIR 4.0 standard as described in the template.
+        
+        #setdeceasedFlag = False
         
         #timeofdeath = '0000-00-00 00:00:00'
-        timeofdeath = 'null'
+        
+        timeofdeath = None
           
                
         sexdetail = 'unknown'
@@ -117,9 +117,12 @@ def dem_dic_json(dfDemodata,dfcovid_dead):
             
             #setdeceasedFlag = 'true'
             
-            setdeceasedFlag = True
+            
+            ## This is being modified to follow the FHIR 4.0 standard as described in the template.
+            
+            #setdeceasedFlag = True
 
-            timeofdeath =  dfcovid_dead.iloc[matchIndex[0]]["diagnosis_time"]
+            timeofdeath =  str(dfcovid_dead.iloc[matchIndex[0]]["diagnosis_time"])
                     
                     
                    
@@ -158,7 +161,7 @@ def dem_dic_json(dfDemodata,dfcovid_dead):
                            
                            # Each resource entry has a unique id. This needs to be present for the bulk import to Aidbox to work
                            
-                           "id": dfDemodata.iloc[i]["patient_site_uid"],
+                           "id": str(dfDemodata.iloc[i]["patient_site_uid"]),
                             
                           
                            # The gender of the individual: male | female | other | unknown 
@@ -170,14 +173,17 @@ def dem_dic_json(dfDemodata,dfcovid_dead):
                              
                            "birthDate" : datetime_input,   
                            
-                           
+                                                                               
                            # Indicates if the individual is deceased or not.
+                           # Being removed as per the FHIR4.0 format, described in the template.
                            
-                           "deceasedBoolean" : setdeceasedFlag,
+                           #"deceasedBoolean" : setdeceasedFlag,
                            
                            # Time of death, if applicable (YYYY-MM-DDThh:mm:ss+zz:zz)       
                            
-                           "deceasedDateTime" : timeofdeath,
+                           "deceasedDateTime" : timeofdeath
+                           
+                          
                                      
                        }
 
@@ -195,12 +201,12 @@ dfDemo['patient_sex'].fillna('', inplace = True)
 
 ## Replace patient_birth_date that are empty with 0000-00-00 00:00:00 to avoid issues later.
 
-dfDemo['patient_birth_date'].fillna('0000-00-00 00:00:00', inplace = True)
+dfDemo['patient_birth_date'].fillna('1900-01-01 00:00:00', inplace = True)
 
 
 ## For cases where the entries are -01
 
-dfDemo['patient_birth_date'] = dfDemo['patient_birth_date'].replace({'-01':'0000-00-00 00:00:00'})
+dfDemo['patient_birth_date'] = dfDemo['patient_birth_date'].replace({'-01':'1900-01-01 00:00:00'})
 
 
 
