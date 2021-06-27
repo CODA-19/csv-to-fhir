@@ -24,6 +24,8 @@ import numpy as np
 import pandas as pd
 import json as js
 import csv as cv
+import datetime
+from datetime import date
 
 
 ## Define the paths (The paths here are those that considered the CITADEL infrastructure)
@@ -117,6 +119,9 @@ def pcr_dic_json(dfPcrData, dic_chum):
     for i in range(len(dfPcrData)):
         
         
+        status_fhir = 'unknown'
+        result_fhir = 'IND'   
+        display_fhir = 'Indeterminate'
         ## Fetch the array/list name.
         
         key_exist = dic_chum.get("pcrResultStatus","None")
@@ -134,7 +139,7 @@ def pcr_dic_json(dfPcrData, dic_chum):
             
             system_input = 'http://snomed.info/sct'            
             code_input = ''                        
-            display_complete_input = 'no code available'
+            display_complete_input = ''
             
             
             
@@ -159,11 +164,12 @@ def pcr_dic_json(dfPcrData, dic_chum):
                               
             elif(string_check == 'non détecté'): 
                 
-                string_check = 'negative'
+                string_check = 'neg'
                 
-            elif(string_check == 'test annulé' or string_check == 'annulé' or string_check == 'non valide'):    # one may have to change this
+            elif(string_check == 'test annulé' or string_check == 'annulé' or string_check == 'non valide' \
+                 or 'en attente' or 'rapp. numérisé'):  
                 
-                string_check = 'can'
+                string_check = 'und' #Undetermined
                 
             else:    
             
@@ -172,13 +178,16 @@ def pcr_dic_json(dfPcrData, dic_chum):
                
                
               
-            if((string_check)==(dfPcr.at[i,'pcr_result_value'][:3])):   #raw_string_lower  
+            if((string_check)==(dfPcrData.at[i,'pcr_result_value'][:3])):   #raw_string_lower  
               
               if('result_snomed_code'in dic_chum["pcrResultStatus"][k].keys()):
              
                 system_input = dic_chum["pcrResultStatus"][k]['snomed_reference_url']            
                 code_input = dic_chum["pcrResultStatus"][k]['result_snomed_code']                       
                 display_complete_input = dic_chum["pcrResultStatus"][k]['raw_string_lower']
+                status_fhir = dic_chum["pcrResultStatus"][k]['status_fhir_code']
+                result_fhir = dic_chum["pcrResultStatus"][k]['result_fhir_code']
+                display_fhir = dic_chum["pcrResultStatus"][k]['result_fhir_display_string']
         
                 break
         
@@ -193,7 +202,7 @@ def pcr_dic_json(dfPcrData, dic_chum):
             
             system_input_loinc = 'http://loinc.org'            
             code_input_loinc = ''                        
-            display_complete_input_loinc = 'no code available'
+            display_complete_input_loinc = ''
             
           
         else:   
@@ -204,7 +213,7 @@ def pcr_dic_json(dfPcrData, dic_chum):
               
              airtable_entries_present = True 
               
-             if((dic_chum["pcrName"][k]['display_string'])==(dfPcr.at[i,'pcr_name'])):   #raw_string_lower
+             if((dic_chum["pcrName"][k]['display_string'])==(dfPcrData.at[i,'pcr_name'])):   #raw_string_lower
               
                 if('loinc_code'in dic_chum["pcrName"][k].keys()):
               
@@ -221,7 +230,7 @@ def pcr_dic_json(dfPcrData, dic_chum):
                                    
                   system_input_loinc = 'http://loinc.org'            
                   code_input_loinc = ''                       
-                  display_complete_input_loinc = 'no code available may require entry in the Airtable.'  
+                  display_complete_input_loinc = ''  
              
                   airtable_entries_present = True
                   
@@ -231,10 +240,23 @@ def pcr_dic_json(dfPcrData, dic_chum):
                 
                  system_input_loinc = 'http://loinc.org'            
                  code_input_loinc = ''                       
-                 display_complete_input_loinc = 'no code available may require entry in the Airtable.' 
+                 display_complete_input_loinc = '' 
                  
        
+        ## Garbage entries in the sample time was throwing error
+        ## to avoid this,if such a value is encountered it is replaced by the result time
+        ## This may change later
        
+        try:
+          
+          issuedate = (datetime.datetime.strptime(dfPcr.iloc[i]["pcr_result_time"],'%Y-%m-%d %H:%M:%S')).strftime('%Y-%m-%dT%H:%M:%SZ')
+          
+        except:
+          
+          issuedate = (datetime.datetime.strptime(dfPcr.iloc[i]["pcr_sample_time"],'%Y-%m-%d %H:%M:%S')).strftime('%Y-%m-%dT%H:%M:%SZ')
+        
+        
+        
         
         
         single_json = { 
@@ -250,15 +272,17 @@ def pcr_dic_json(dfPcrData, dic_chum):
                              
                             # The status of the observation: registered | preliminary | final | amended 
                                                                          
-                            "status": dfPcrData.iloc[i]["pcr_result_status"],
+                            #"status": dfPcrData.iloc[i]["pcr_result_status"],
+                            
+                            "status": status_fhir,
                             
                             # Time of the observation (YYYY-MM-DDThh:mm:ss+zz:zz)
                             
-                            "effectiveDateTime" : dfPcrData.iloc[i]["pcr_sample_time"],
+                            "effectiveDateTime" : (datetime.datetime.strptime(dfPcrData.iloc[i]["pcr_sample_time"],'%Y-%m-%d %H:%M:%S')).strftime('%Y-%m-%dT%H:%M:%SZ'),
                             
                             # Patient associated with the observation
                             
-                            "issued": dfPcrData.iloc[i]["pcr_result_time"],
+                            "issued": issuedate,
                             
                             # This needs to be associated with patient_site_id (how we can join labs to the patient table)
                             
@@ -276,7 +300,7 @@ def pcr_dic_json(dfPcrData, dic_chum):
                                     
                                    { "system" : system_input_loinc,
                                      "code": code_input_loinc,
-                                     "display": ""
+                                     "display": dfPcrData.iloc[i]["pcr_name"]   
                                      }
                             
                             ],
@@ -291,9 +315,9 @@ def pcr_dic_json(dfPcrData, dic_chum):
                                
                                "coding": [ 
                                 
-                                {"system": system_input ,
+                                {          "system": system_input ,
                                            "code" : code_input,
-                                           "display": dfPcrData.iloc[i]["pcr_sample_type"]}
+                                           "display": dfPcrData.iloc[i]["pcr_sample_type"]} # Check this
                                 ]
                                
                                },
@@ -303,11 +327,24 @@ def pcr_dic_json(dfPcrData, dic_chum):
                             # Value and units of measure
                             
                            "interpretation": [{
-                                            "coding": [{
-                                            "system": system_input,
-                                            "code": code_input,
-                                            "display": dfPcrData.iloc[i]["pcr_result_value"]
-                                              }]
+                                            "coding": [
+                                                    
+                                                 {
+                                                    "system": system_input,
+                                                    "code": code_input,
+                                                    "display": dfPcrData.iloc[i]["pcr_result_value"]
+                                                  },
+                                                 
+                                                 
+                                                 {
+                                                    "system": "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation", 
+                                                    "code": result_fhir,   
+                                                    "display": display_fhir
+                                                   
+                                                 }
+                                                 
+                                                                                          
+                                             ]
                                             }]
                                      
                                      

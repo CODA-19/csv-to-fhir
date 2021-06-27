@@ -32,6 +32,7 @@ import json as js
 import csv as cv
 import datetime
 from datetime import date
+import dateutil.parser as parser 
 
 
 ## Define the paths (The paths here are those that considered the CITADEL infrastructure)
@@ -200,19 +201,19 @@ def diagnosis_dic_json(dfDiagnosis, dfPatient):
                             "encounter": {"reference": "Encounter/2314234"},
 
                       
-                            "onsetDateTime": dfDiagnosis.iloc[i]["diagnosis_time"],
+                            "onsetDateTime": (datetime.datetime.strptime(dfDiagnosis.iloc[1]["diagnosis_time"],'%Y-%m-%d %H:%M:%S')).strftime('%Y-%m-%dT%H:%M:%SZ'),
                           
                             
                             # Age at which the Condition began to occur
                             # Precalculated with birthDate (Resource/Patient)
                             
-                            "onsetAge": {
-                            
-                                "value": patientage,
-                                "unit": "years",
-                                "system": "https://ucum.org/ucum.html",
-                                "code": "a"
-                              },
+#                            "onsetAge": {
+#                            
+#                                "value": patientage,
+#                                "unit": "years",
+#                                "system": "https://ucum.org/ucum.html",
+#                                "code": "a"
+#                              },
                             
                           
                             "code": {
@@ -220,7 +221,8 @@ def diagnosis_dic_json(dfDiagnosis, dfPatient):
                               "coding": [
                                                                            
                                   {
-                            				"system": "http://hl7.org/fhir/ValueSet/icd-10",
+                            				#"system": "http://hl7.org/fhir/ValueSet/icd-10",
+                                        "system": "http://hl7.org/fhir/sid/icd-10",
                             				"code": dfDiagnosis.iloc[i]["diagnosis_icd_code"],
                             				"display": dfDiagnosis.iloc[i]["diagnosis_name"]
                             		 }

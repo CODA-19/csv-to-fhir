@@ -96,7 +96,7 @@ def dem_dic_json(dfDemodata,dfcovid_dead):
         
         ## This is being modified to follow the FHIR 4.0 standard as described in the template.
         
-        #setdeceasedFlag = False
+        setdeceasedFlag = False
         
         #timeofdeath = '0000-00-00 00:00:00'
         
@@ -120,7 +120,7 @@ def dem_dic_json(dfDemodata,dfcovid_dead):
             
             ## This is being modified to follow the FHIR 4.0 standard as described in the template.
             
-            #setdeceasedFlag = True
+            setdeceasedFlag = True
 
             timeofdeath =  str(dfcovid_dead.iloc[matchIndex[0]]["diagnosis_time"])
                     
@@ -169,7 +169,7 @@ def dem_dic_json(dfDemodata,dfcovid_dead):
                            "gender" :  sexdetail,                                  
                                                         
                             
-                           # The date of birth of the individual (YYYY-MM-DD)                            
+                           # The date of birth of the individual (YYYY-MM)                            
                              
                            "birthDate" : datetime_input,   
                            
@@ -177,11 +177,11 @@ def dem_dic_json(dfDemodata,dfcovid_dead):
                            # Indicates if the individual is deceased or not.
                            # Being removed as per the FHIR4.0 format, described in the template.
                            
-                           #"deceasedBoolean" : setdeceasedFlag,
+                           "deceasedBoolean" : setdeceasedFlag,
                            
                            # Time of death, if applicable (YYYY-MM-DDThh:mm:ss+zz:zz)       
                            
-                           "deceasedDateTime" : timeofdeath
+                           #"deceasedDateTime" : timeofdeath
                            
                           
                                      

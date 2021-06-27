@@ -25,6 +25,8 @@ import json as js
 import csv as cv
 import enum
 import json
+import datetime
+from datetime import date
 
 
 ## Define the paths (The paths here are those that considered the CITADEL infrastructure)
@@ -268,10 +270,10 @@ def epi_dic_json(dfepisode,dic_chum):
                            "status": "finished",
                            
                                                                                   
-                           "class": {"system": "http://terminology.hi17.org/CodeSystem/v3-ActCode",                     
-                                                                            
-                                      "code": 'IMP',                         
-                                      "display": dfepisode.iloc[i]["episode_description"]},        
+                           "class": {
+                                         "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                                         "code": 'IMP',                         
+                                         "display": dfepisode.iloc[i]["episode_description"]},        
                                       
                            
                            "subject":{"reference": 'Patient' + '/' + str(dfepisode.iloc[i]["patient_site_uid"])},
@@ -300,15 +302,17 @@ def epi_dic_json(dfepisode,dic_chum):
 #                                   
 #                                   ],                  
                            
-## To accomodate array for all loactions associated with the encounter                           
+                        
                             
                                                      
 #                           "period": {"start":  dfepisode.iloc[i]["episode_start_time"] ,
 #                                        "end": dfepisode.iloc[i]["episode_end_time"] }
                            
+## To accomodate array for all loactions associated with the encounter                              
                            
-                             "period": {"start": min(str(dfepisode.iloc[i]["episode_start_time"]).split(',')) ,
-                                        "end": max(str(dfepisode.iloc[i]["episode_end_time"]).split(','))}
+                           
+                             "period": {"start": (datetime.datetime.strptime(min(str(dfepisode.iloc[i]["episode_start_time"]).split(',')),'%Y-%m-%d %H:%M:%S')).strftime('%Y-%m-%dT%H:%M:%SZ') ,
+                                        "end": (datetime.datetime.strptime(max(str(dfepisode.iloc[i]["episode_end_time"]).split(',')),'%Y-%m-%d %H:%M:%S')).strftime('%Y-%m-%dT%H:%M:%SZ')}
                                                 
                        }
                            
@@ -329,14 +333,14 @@ def epi_dic_json(dfepisode,dic_chum):
 
              if(string_check == (dfepisode.iloc[i]["episode_unit_type"].split(",")[m][:5])):
 
-                    system_input = dic_chum["unitType"][k]['fhir_reference_url']
+                    #system_input = dic_chum["unitType"][k]['fhir_reference_url']
                     code_input = dic_chum["unitType"][k]['fhir_code']   
                     display_complete_input = dic_chum["unitType"][k]['display_string']
                     
-                    episode_start =  str(dfepisode.iloc[i]["episode_start_time"]).split(",")[m]
-                    episode_end =  str(dfepisode.iloc[i]["episode_end_time"]).split(",")[m]
+                    episode_start =  (datetime.datetime.strptime(str(dfepisode.iloc[i]["episode_start_time"]).split(",")[m],'%Y-%m-%d %H:%M:%S')).strftime('%Y-%m-%dT%H:%M:%SZ')
+                    episode_end =  (datetime.datetime.strptime(str(dfepisode.iloc[i]["episode_end_time"]).split(",")[m],'%Y-%m-%d %H:%M:%S')).strftime('%Y-%m-%dT%H:%M:%SZ')
                     
-                    single_json["location"].append({"location":{"system": system_input, "reference" : 'Location' + '/' + \
+                    single_json["location"].append({"location":{"reference" : 'Location' + '/' + \
                                str(location_dict[code_input]), "display" : display_complete_input},  "status": "completed", \
                                "period":{"start":episode_start,"end":episode_end}})
                                          
@@ -367,6 +371,11 @@ dfEpi['episode_unit_type'].fillna('unknown', inplace = True)
 ## Replace episode_description that are na  with "" to avoid issues later.
 
 dfEpi['episode_description'].fillna('', inplace = True)
+
+## To deal with the issue of date time field when empty/na.
+
+dfEpi['episode_start_time'].fillna('1900-01-01 00:00:00', inplace = True)
+dfEpi['episode_end_time'].fillna('1900-01-01 00:00:00', inplace = True)
 
 
 ## Process the dataframe for location merger.
