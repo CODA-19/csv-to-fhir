@@ -311,8 +311,10 @@ def epi_dic_json(dfepisode,dic_chum):
 ## To accomodate array for all loactions associated with the encounter                              
                            
                            
-                             "period": {"start": (datetime.datetime.strptime(min(str(dfepisode.iloc[i]["episode_start_time"]).split(',')),'%Y-%m-%d %H:%M:%S')).strftime('%Y-%m-%dT%H:%M:%SZ') ,
-                                        "end": (datetime.datetime.strptime(max(str(dfepisode.iloc[i]["episode_end_time"]).split(',')),'%Y-%m-%d %H:%M:%S')).strftime('%Y-%m-%dT%H:%M:%SZ')}
+                             "period": {"start": (datetime.datetime.strptime(min(str(dfepisode.iloc[i]["episode_start_time"])\
+                                                                                 .split(',')),'%Y-%m-%d %H:%M:%S')).strftime('%Y-%m-%dT%H:%M:%SZ') ,
+                                        "end": (datetime.datetime.strptime(max(str(dfepisode.iloc[i]["episode_end_time"])\
+                                                                               .split(',')),'%Y-%m-%d %H:%M:%S')).strftime('%Y-%m-%dT%H:%M:%SZ')}
                                                 
                        }
                            
@@ -337,8 +339,10 @@ def epi_dic_json(dfepisode,dic_chum):
                     code_input = dic_chum["unitType"][k]['fhir_code']   
                     display_complete_input = dic_chum["unitType"][k]['display_string']
                     
-                    episode_start =  (datetime.datetime.strptime(str(dfepisode.iloc[i]["episode_start_time"]).split(",")[m],'%Y-%m-%d %H:%M:%S')).strftime('%Y-%m-%dT%H:%M:%SZ')
-                    episode_end =  (datetime.datetime.strptime(str(dfepisode.iloc[i]["episode_end_time"]).split(",")[m],'%Y-%m-%d %H:%M:%S')).strftime('%Y-%m-%dT%H:%M:%SZ')
+                    episode_start =  (datetime.datetime.strptime(str(dfepisode.iloc[i]["episode_start_time"])\
+                                                                 .split(",")[m],'%Y-%m-%d %H:%M:%S')).strftime('%Y-%m-%dT%H:%M:%SZ')
+                    episode_end =  (datetime.datetime.strptime(str(dfepisode.iloc[i]["episode_end_time"])\
+                                                               .split(",")[m],'%Y-%m-%d %H:%M:%S')).strftime('%Y-%m-%dT%H:%M:%SZ')
                     
                     single_json["location"].append({"location":{"reference" : 'Location' + '/' + \
                                str(location_dict[code_input]), "display" : display_complete_input},  "status": "completed", \

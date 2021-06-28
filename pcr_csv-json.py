@@ -154,27 +154,27 @@ def pcr_dic_json(dfPcrData, dic_chum):
           for k in range(len(dic_chum["pcrResultStatus"])):   
             
                      
-            string_check = dic_chum["pcrResultStatus"][k]['raw_string_lower']  
+            string_check_raw = dic_chum["pcrResultStatus"][k]['raw_string_lower']  
             
-            if(string_check == 'négatif'):
+            if(string_check_raw == 'négatif'):
                 
              
-               string_check = string_check[:3].replace('é','e')
+               string_check = string_check_raw[:3].replace('é','e')
                
                               
-            elif(string_check == 'non détecté'): 
+            elif(string_check_raw == 'non détecté'): 
                 
                 string_check = 'neg'
                 
-            elif(string_check == 'test annulé' or string_check == 'annulé' or string_check == 'non valide' \
-                 or 'en attente' or 'rapp. numérisé'):  
+            elif(string_check_raw == 'test annulé' or string_check_raw == 'annulé' or string_check_raw == 'non valide' \
+                 or string_check_raw == 'en attente' or string_check_raw == 'rapp. numérisé'):  
                 
                 string_check = 'und' #Undetermined
                 
-            else:    
+            elif(string_check_raw == 'positif'):    
             
                 
-               string_check = string_check[:3] 
+               string_check = 'pos' 
                
                
               
@@ -278,7 +278,8 @@ def pcr_dic_json(dfPcrData, dic_chum):
                             
                             # Time of the observation (YYYY-MM-DDThh:mm:ss+zz:zz)
                             
-                            "effectiveDateTime" : (datetime.datetime.strptime(dfPcrData.iloc[i]["pcr_sample_time"],'%Y-%m-%d %H:%M:%S')).strftime('%Y-%m-%dT%H:%M:%SZ'),
+                            "effectiveDateTime" : (datetime.datetime.strptime(dfPcrData.iloc[i]["pcr_sample_time"],\
+                                                                              '%Y-%m-%d %H:%M:%S')).strftime('%Y-%m-%dT%H:%M:%SZ'),
                             
                             # Patient associated with the observation
                             
