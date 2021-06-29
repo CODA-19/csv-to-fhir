@@ -169,14 +169,14 @@ def diagnosis_dic_json(dfDiagnosis, dfPatient):
         index_of_interest = dfPatient.index[dfPatient.patient_site_uid == check_patient_uid]
         
         
-        # The diagnosis date and time.
+        # The diagnosis date and time (retained for debugging).
         
-        diagnosis_date = datetime.datetime.strptime(dfDiagnosis.iloc[i]["diagnosis_time"],'%Y-%m-%d %H:%M:%S')
+        #diagnosis_date = datetime.datetime.strptime(dfDiagnosis.iloc[i]["diagnosis_time"],'%Y-%m-%d %H:%M:%S')
         
          
         # Calculate the age when the problem was diagnosed.
     
-        patientage = calculate_age(datetime.datetime.strptime(dfDemo["patient_birth_date"][index_of_interest[0]],'%Y-%m-%d'),diagnosis_date)
+        #patientage = calculate_age(datetime.datetime.strptime(dfDemo["patient_birth_date"][index_of_interest[0]],'%Y-%m-%d'),diagnosis_date)
 
         single_json = { 
                              
@@ -201,27 +201,17 @@ def diagnosis_dic_json(dfDiagnosis, dfPatient):
                             "encounter": {"reference": "Encounter/2314234"},
 
                       
-                            "onsetDateTime": (datetime.datetime.strptime(dfDiagnosis.iloc[1]["diagnosis_time"],'%Y-%m-%d %H:%M:%S')).strftime('%Y-%m-%dT%H:%M:%SZ'),
-                          
-                            
-                            # Age at which the Condition began to occur
-                            # Precalculated with birthDate (Resource/Patient)
-                            
-#                            "onsetAge": {
-#                            
-#                                "value": patientage,
-#                                "unit": "years",
-#                                "system": "https://ucum.org/ucum.html",
-#                                "code": "a"
-#                              },
-                            
+                            "onsetDateTime": (datetime.datetime.strptime(dfDiagnosis.iloc[i]["diagnosis_time"],\
+                                                                         '%Y-%m-%d %H:%M:%S')).strftime('%Y-%m-%dT%H:%M:%SZ'),
+                                                                              
                           
                             "code": {
                               
                               "coding": [
-                                                                           
+                                   
+                                  #ICD-10 code for the diagnosis                                        
                                   {
-                            				#"system": "http://hl7.org/fhir/ValueSet/icd-10",
+                            				
                                         "system": "http://hl7.org/fhir/sid/icd-10",
                             				"code": dfDiagnosis.iloc[i]["diagnosis_icd_code"],
                             				"display": dfDiagnosis.iloc[i]["diagnosis_name"]

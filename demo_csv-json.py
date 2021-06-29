@@ -15,7 +15,8 @@ import numpy as np
 import pandas as pd
 import json as js
 import csv as cv
-from datetime import datetime
+import datetime
+from datetime import date
 
 
 ## Define the paths (The paths here are those that considered the CITADEL infrastructure)
@@ -91,12 +92,12 @@ def dem_dic_json(dfDemodata,dfcovid_dead):
         ## Initialize the deceased flag as 0
         ## Initialize the time of death as '0000-00-00 00:00:00.
         
-        #setdeceasedFlag = 'false'
+        setdeceasedFlag = 'false'
         
         
         ## This is being modified to follow the FHIR 4.0 standard as described in the template.
         
-        setdeceasedFlag = False
+        #setdeceasedFlag = False
         
         #timeofdeath = '0000-00-00 00:00:00'
         
@@ -122,7 +123,8 @@ def dem_dic_json(dfDemodata,dfcovid_dead):
             
             setdeceasedFlag = True
 
-            timeofdeath =  str(dfcovid_dead.iloc[matchIndex[0]]["diagnosis_time"])
+            timeofdeath =  (datetime.datetime.strptime(str(dfcovid_dead.iloc[matchIndex[0]]["diagnosis_time"]),\
+                                                       '%Y-%m-%d %H:%M:%S')).strftime('%Y-%m-%dT%H:%M:%SZ')
                     
                     
                    
@@ -177,11 +179,11 @@ def dem_dic_json(dfDemodata,dfcovid_dead):
                            # Indicates if the individual is deceased or not.
                            # Being removed as per the FHIR4.0 format, described in the template.
                            
-                           "deceasedBoolean" : setdeceasedFlag,
+                           #"deceasedBoolean" : setdeceasedFlag,
                            
                            # Time of death, if applicable (YYYY-MM-DDThh:mm:ss+zz:zz)       
                            
-                           #"deceasedDateTime" : timeofdeath
+                           "deceasedDateTime" : timeofdeath
                            
                           
                                      
