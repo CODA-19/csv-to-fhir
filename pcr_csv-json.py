@@ -291,7 +291,7 @@ def pcr_dic_json(dfPcrData, dic_chum):
                             
                             # Clinical episode associated with the observation (if possible)
                             
-                            "encounter": {"reference": "Encounter/2314234"},
+                            # "encounter": {"reference": "Encounter/2314234"},
                             
                             # LOINC code for the observation that was made (LOINC "code" field to be omitted until coding/categorization completed)
                             
