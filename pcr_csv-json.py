@@ -242,9 +242,9 @@ def pcr_dic_json(dfPcrData, dic_chum):
                  display_complete_input_loinc = '' 
                  
        
-        ## Garbage entries in the sample time was throwing error
+        ## Garbage entries in the sample time were throwing errors
         ## to avoid this,if such a value is encountered it is replaced by the result time
-        ## This may change later
+        ## This may change (would be clarified later)
        
         try:
           
