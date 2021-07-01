@@ -31,12 +31,6 @@ from datetime import date
 ## Define the paths (The paths here are those that considered the CITADEL infrastructure)
 
 
-#pathOfPcrfile = '/data8/network_mount/S/CODA19_Anon_csv/april_16_data/pcr_data.csv'
-#pathofPcrJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files_Apr_16/pcr_data.json'
-#pathofEpifile = '/data8/network_mount/S/CODA19_Anon_csv/april_16_data/episode_data.csv'
-
-
-
 pathOfPcrfile = '/data8/network_mount/S/CODA19_Anon_csv/encrypted_data/pcr_data.csv'
 pathofEpifile = '/data8/network_mount/S/CODA19_Anon_csv/encrypted_data/episode_data.csv'
 pathofPcrJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files/pcr_data.json'
@@ -119,9 +113,14 @@ def pcr_dic_json(dfPcrData, dic_chum):
     for i in range(len(dfPcrData)):
         
         
+        
+        ## The default values.
+        
         status_fhir = 'unknown'
         result_fhir = 'IND'   
         display_fhir = 'Indeterminate'
+        
+        
         ## Fetch the array/list name.
         
         key_exist = dic_chum.get("pcrResultStatus","None")
@@ -291,7 +290,7 @@ def pcr_dic_json(dfPcrData, dic_chum):
                             
                             # Clinical episode associated with the observation (if possible)
                             
-                            # "encounter": {"reference": "Encounter/2314234"},
+                            #"encounter": {"reference": "Encounter/2314234"},
                             
                             # LOINC code for the observation that was made (LOINC "code" field to be omitted until coding/categorization completed)
                             

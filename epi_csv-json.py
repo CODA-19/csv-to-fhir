@@ -31,13 +31,6 @@ from datetime import date
 
 ## Define the paths (The paths here are those that considered the CITADEL infrastructure)
 
-
-
-
-#pathOfEpifile = '/data8/network_mount/S/CODA19_Anon_csv/april_16_data/episode_data.csv'
-#pathofEpiJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files_Apr_16/episode_data.json'
-
-
 pathOfEpifile = '/data8/network_mount/S/CODA19_Anon_csv/encrypted_data/episode_data.csv'
 pathofEpiJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files/episode_data.json'
 
@@ -266,6 +259,7 @@ def epi_dic_json(dfepisode,dic_chum):
                            
                            ## One of https://www.hl7.org/fhir/valueset-encounter-status.html
                            ## planned, arrived, triaged, in-progress, cancelled, unknown
+                           ## considered only for the present scope of the project
                                                       
                            "status": "finished",
                            
@@ -279,39 +273,10 @@ def epi_dic_json(dfepisode,dic_chum):
                            "subject":{"reference": 'Patient' + '/' + str(dfepisode.iloc[i]["patient_site_uid"])},
  
     
-## To accomodate array for all loactions associated with the encounter
-                          
-#                           "location": [ { 
-#                                                                            
-#                                         "location":{ 
-#                                         
-#                                         "system": 'https://www.hl7.org/fhir/v3/ServiceDeliveryLocationRoleType/vs.html',        
-#                                         "reference": 'Location' + '/' + str(location_dict[code_input]),
-#                                         "display":  display_complete_input
-#                                         
-#                                       },
-#                                   
-#                                       "status": "completed",
-#                                       
-#                                       "period": {
-#                                                  "start": dfepisode.iloc[i]["episode_start_time"],
-#                                                  "end": dfepisode.iloc[i]["episode_end_time"]
-#                                                  }
-#                                       
-#                                       }
-#                                   
-#                                   ],                  
-                           
-                        
-                            
-                                                     
-#                           "period": {"start":  dfepisode.iloc[i]["episode_start_time"] ,
-#                                        "end": dfepisode.iloc[i]["episode_end_time"] }
-                           
-## To accomodate array for all loactions associated with the encounter                              
+                                                       
                            
                            
-                             "period": {"start": (datetime.datetime.strptime(min(str(dfepisode.iloc[i]["episode_start_time"])\
+                           "period": {"start": (datetime.datetime.strptime(min(str(dfepisode.iloc[i]["episode_start_time"])\
                                                                                  .split(',')),'%Y-%m-%d %H:%M:%S')).strftime('%Y-%m-%dT%H:%M:%SZ') ,
                                         "end": (datetime.datetime.strptime(max(str(dfepisode.iloc[i]["episode_end_time"])\
                                                                                .split(',')),'%Y-%m-%d %H:%M:%S')).strftime('%Y-%m-%dT%H:%M:%SZ')}
