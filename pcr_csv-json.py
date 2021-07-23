@@ -37,7 +37,7 @@ pathofPcrJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files/pcr_data.json
 
 
 
-path_to_dictionary = '/data8/projets/ChasseM_CODA19_1014582/fhir/code/rdas/files_mapping/chum.json'
+path_to_dictionary = '/data8/projets/ChasseM_CODA19_1014582/fhir/code/rdas/files_mapping/CHUM.json'
 
 
 
@@ -81,6 +81,84 @@ def read_dictionary(path_to_dictionary_file):
         
         print("I/O error({0}): {1}".format(e.errno, e.strerror))
         return -1
+
+
+
+def pcr_raw_string_check(rawstring):
+    
+    
+    """
+    
+    This method maps the entries present in the 
+    Airtable to that present in the DB
+    
+    Arguments:
+        
+       rawstring: A string
+       
+       
+    Returns:
+        
+       stringreturn: A string   
+    
+    
+    """
+    
+    
+    
+    rawstringvalue = str(rawstring)
+    
+    if rawstringvalue == 'chlamydia':
+        
+       stringreturn = 'chlamydia'
+        
+    elif rawstringvalue =='covid':
+                 
+       stringreturn = 'sars_cov2'
+                 
+    elif rawstringvalue =='gonocoque':
+        
+       stringreturn = 'gonorrhea'
+            
+    elif rawstringvalue =='herpès':
+          
+       stringreturn =  'herpes_simplex_virus'         
+        
+    elif rawstringvalue =='influenza a':
+             
+        stringreturn = 'influenza_a'
+        
+    elif rawstringvalue =='influenza b':
+        
+       stringreturn = 'influenza_b'
+               
+    elif rawstringvalue =='l. monocytogenes':
+                
+       stringreturn = 'listeria_monocytogenes'
+                
+    elif rawstringvalue =='rsv':
+                
+       stringreturn = 'varicella_zoster_virus'
+                
+    elif rawstringvalue =='vbk':
+                
+       stringreturn = 'bk_virus'
+                
+    elif rawstringvalue =='virus jc':
+                
+       stringreturn = 'jc_virus'
+                
+    elif rawstringvalue =='vzv':
+                
+       stringreturn = 'varicella_zoster_virus'
+       
+              
+    return stringreturn    
+    
+    
+    
+     
+
 
 
 
@@ -212,7 +290,9 @@ def pcr_dic_json(dfPcrData, dic_chum):
               
              airtable_entries_present = True 
               
-             if((dic_chum["pcrName"][k]['display_string'])==(dfPcrData.at[i,'pcr_name'])):   #raw_string_lower
+             #if((dic_chum["pcrName"][k]['display_string'])==(dfPcrData.at[i,'pcr_name'])):   #raw_string_lower
+             if(pcr_raw_string_check((dic_chum["pcrName"][k]['raw_string_lower']))==(dfPcrData.at[i,'pcr_name'])):
+                 
               
                 if('loinc_code'in dic_chum["pcrName"][k].keys()):
               

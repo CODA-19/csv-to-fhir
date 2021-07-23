@@ -35,7 +35,7 @@ pathOfEpifile = '/data8/network_mount/S/CODA19_Anon_csv/encrypted_data/episode_d
 pathofEpiJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files/episode_data.json'
 
 
-path_to_dictionary = '/data8/projets/ChasseM_CODA19_1014582/fhir/code/rdas/files_mapping/chum.json'
+path_to_dictionary = '/data8/projets/ChasseM_CODA19_1014582/fhir/code/rdas/files_mapping/CHUM.json'
 
 
 
@@ -85,6 +85,74 @@ def read_dictionary(path_to_dictionary_file):
         
         print("I/O error({0}): {1}".format(e.errno, e.strerror))
         return -1
+
+
+
+def unit_type_correction(unitstring):
+    
+    """
+    
+    This method modifies the unit type present in the
+    dataframe from the DB to match that is present in the
+    Airtable.
+    
+    Argument:
+        
+        unitstring  a string
+        
+    Returns:
+        
+        returnstring a string
+    
+    
+    """
+    
+    
+    
+    
+    checkunitstring = str(unitstring)
+    
+    if checkunitstring == 'high_dependency_unit':
+        
+        returnstring = 'Hospital unit'
+            
+    elif checkunitstring == 'inpatient_ward':
+        
+        returnstring = 'Hospital unit'
+        
+    elif checkunitstring == 'day_surgery_unit':  
+        
+        returnstring = 'Hospital unit'
+        
+    elif checkunitstring == 'intensive_care_unit':
+        
+        returnstring = 'Intensive care unit'
+    
+    elif checkunitstring == 'coronary_care_unit':
+        
+        returnstring = 'Coronary care unit'
+        
+    elif checkunitstring == 'cardiac_catheterization_lab':
+        
+        returnstring = 'Cardiac catheterization lab'
+        
+    elif checkunitstring == 'emergency_room':
+        
+        returnstring = 'Emergency room'
+        
+    else:
+        
+        returnstring = ''
+        
+ 
+        
+    return  returnstring[:5]   
+    
+    
+    
+        
+    
+
 
 
 
@@ -231,7 +299,8 @@ def epi_dic_json(dfepisode,dic_chum):
                
                
               
-               if(string_check == dfepisode.iloc[i]["episode_unit_type"][:5]):   
+               #if(string_check == dfepisode.iloc[i]["episode_unit_type"][:5]):
+               if(string_check == unit_type_correction(dfepisode.iloc[i]["episode_unit_type"])):    
                               
                    system_input = dic_chum["unitType"][k]['fhir_reference_url']          
                    code_input = dic_chum["unitType"][k]['fhir_code']                        
@@ -298,7 +367,8 @@ def epi_dic_json(dfepisode,dic_chum):
 
              string_check = dic_chum["unitType"][k]['display_string'][:5]
 
-             if(string_check == (dfepisode.iloc[i]["episode_unit_type"].split(",")[m][:5])):
+             #if(string_check == (dfepisode.iloc[i]["episode_unit_type"].split(",")[m][:5])):
+             if(string_check == unit_type_correction((dfepisode.iloc[i]["episode_unit_type"].split(",")[m]))):    
 
                     #system_input = dic_chum["unitType"][k]['fhir_reference_url']
                     code_input = dic_chum["unitType"][k]['fhir_code']   
