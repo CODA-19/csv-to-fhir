@@ -138,7 +138,7 @@ def pcr_raw_string_check(rawstring):
                 
     elif rawstringvalue =='rsv':
                 
-       stringreturn = 'varicella_zoster_virus'
+       stringreturn = 'respiratory_syncytial_virus'
                 
     elif rawstringvalue =='vbk':
                 
