@@ -25,7 +25,7 @@ from datetime import date
 
 pathOfPatientfile = '/data8/network_mount/S/CODA19_Anon_csv/encrypted_data/patient_data.csv'
 pathOfDiagnosisfile = '/data8/network_mount/S/CODA19_Anon_csv/encrypted_data/diagnosis_data.csv'
-pathofDemoJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files/demographic_data.json'
+pathofDemoJsonfile = '/data8/network_mount/S/FHIR_json/dev_test/demographic_data.json'
 
 
 ## Load and process (if required) the data using Pandas and the csv file.
@@ -152,42 +152,84 @@ def dem_dic_json(dfDemodata,dfcovid_dead):
         
         datetime_input = ''.join(datetime_list)
         
+        if not (timeofdeath is None):
         
         
-        single_json = { 
-                
-                
-                           # The type of resource
-                           
-                           "resourceType" : "Patient",                                                  
-                           
-                           # Each resource entry has a unique id. This needs to be present for the bulk import to Aidbox to work
-                           
-                           "id": str(dfDemodata.iloc[i]["patient_site_uid"]),
-                            
-                          
-                           # The gender of the individual: male | female | other | unknown 
-                            
-                           "gender" :  sexdetail,                                  
-                                                        
-                            
-                           # The date of birth of the individual (YYYY-MM)                            
-                             
-                           "birthDate" : datetime_input,   
-                           
-                                                                               
-                           # Indicates if the individual is deceased or not.
-                           # Being removed as per the FHIR4.0 format, described in the template.
-                           
-                           #"deceasedBoolean" : setdeceasedFlag,
-                           
-                           # Time of death, if applicable (YYYY-MM-DDThh:mm:ss+zz:zz)       
-                           
-                           "deceasedDateTime" : timeofdeath
-                           
-                          
-                                     
-                       }
+        
+            single_json = { 
+                    
+                    
+                               # The type of resource
+                               
+                               "resourceType" : "Patient",                                                  
+                               
+                               # Each resource entry has a unique id. This needs to be present for the bulk import to Aidbox to work
+                               
+                               "id": str(dfDemodata.iloc[i]["patient_site_uid"]),
+                                
+                              
+                               # The gender of the individual: male | female | other | unknown 
+                                
+                               "gender" :  sexdetail,                                  
+                                                            
+                                
+                               # The date of birth of the individual (YYYY-MM)                            
+                                 
+                               "birthDate" : datetime_input,   
+                               
+                                                                                   
+                               # Indicates if the individual is deceased or not.
+                               # Being removed as per the FHIR4.0 format, described in the template.
+                               
+                               #"deceasedBoolean" : setdeceasedFlag,
+                               
+                               # Time of death, if applicable (YYYY-MM-DDThh:mm:ss+zz:zz)       
+                               
+                               "deceasedDateTime" : timeofdeath
+                               
+                              
+                                         
+                           }
+        
+        
+        else:
+        
+        
+            single_json = { 
+                    
+                    
+                               # The type of resource
+                               
+                               "resourceType" : "Patient",                                                  
+                               
+                               # Each resource entry has a unique id. This needs to be present for the bulk import to Aidbox to work
+                               
+                               "id": str(dfDemodata.iloc[i]["patient_site_uid"]),
+                                
+                              
+                               # The gender of the individual: male | female | other | unknown 
+                                
+                               "gender" :  sexdetail,                                  
+                                                            
+                                
+                               # The date of birth of the individual (YYYY-MM)                            
+                                 
+                               "birthDate" : datetime_input,   
+                               
+                                                                                   
+                               # Indicates if the individual is deceased or not.
+                               # Being removed as per the FHIR4.0 format, described in the template.
+                               
+                               #"deceasedBoolean" : setdeceasedFlag,
+                               
+                               # Time of death, if applicable (YYYY-MM-DDThh:mm:ss+zz:zz)       
+                              
+                               
+                              
+                                         
+                           }
+            
+        
 
 
         dict_json.update({str(i) : single_json})
