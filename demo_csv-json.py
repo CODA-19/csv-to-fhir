@@ -25,7 +25,7 @@ from datetime import date
 
 pathOfPatientfile = '/data8/network_mount/S/CODA19_Anon_csv/encrypted_data/patient_data.csv'
 pathOfDiagnosisfile = '/data8/network_mount/S/CODA19_Anon_csv/encrypted_data/diagnosis_data.csv'
-pathofDemoJsonfile = '/data8/network_mount/S/FHIR_json/dev_test/demographic_data.json'
+pathofDemoJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files/demographic_data.json'
 
 
 ## Load and process (if required) the data using Pandas and the csv file.
