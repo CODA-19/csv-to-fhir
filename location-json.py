@@ -23,6 +23,8 @@ from connect_postgres import connectDB_returnDF
 
 id_bucket = []
 
+bed_valuebucket = []
+
 path_to_dictionary = '/data8/projets/ChasseM_CODA19_1014582/fhir/code/rdas/dev_2021/chum.json'
 pathofbedLocJsonfile = '/data8/network_mount/S/FHIR_json/dev_test/loc_bed.json'
 pathofwardLocJsonfile = '/data8/network_mount/S/FHIR_json/dev_test/loc_ward.json'
@@ -163,15 +165,15 @@ def loc_dic_json(dfhosploc,dic_chum):
            wardNumber = dic_chum["unitType"][j]["raw_string_lower"].upper()
            codeCheck = (str(dfhosploc.iloc[i]["unitesoinscode"]).replace(" ","")).upper()
            
-           if codeCheck == 'ER':
+           #if codeCheck == 'ER':
                
-               if dfhosploc.iloc[i]["cod_emplace"] is not None:
+           #    if dfhosploc.iloc[i]["cod_emplace"] is not None:
                    
-                   wardNumber = dfhosploc.iloc[i]["cod_emplace"]
+           #        wardNumber = dfhosploc.iloc[i]["cod_emplace"]
                    
-               else:
+           #    else:
                    
-                   wardNumber = "NA"
+           #        wardNumber = "NA"
            
            
                     
@@ -190,12 +192,41 @@ def loc_dic_json(dfhosploc,dic_chum):
                  fhircode = str(dic_chum["unitType"][j]['fhir_code'])
                  display_entire = str(dic_chum["unitType"][j]['display_string'])
                  
+                 
+                 if codeCheck == 'ER':
+                   
+                   if dfhosploc.iloc[i]["cod_emplace"] is not None:
+                       
+                       #display_entire = dfhosploc.iloc[i]["de1"]
+                       bedlocation = str(dfhosploc.iloc[i]["de1"]).replace(" ","") + '-' + lit
+                       
+                                             
+                       
+                   else:
+                       
+                       #display_entire = "NA"
+                       
+                       bedlocation = "NA"
+                 
+                 
+                 
+                 
                  bedNumber = ''
                  
                  #wardNumber = ''
                  lit = ''
                  
                  matchnotFound = False
+                 
+                 if  bedlocation not in bed_valuebucket:
+                           
+                     bed_valuebucket.append(bedlocation)
+                           
+                 else:
+                     
+                     matchnotFound = True
+                 
+                 
                  
                      
                  break 

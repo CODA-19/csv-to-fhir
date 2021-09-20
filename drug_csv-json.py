@@ -24,20 +24,20 @@ import numpy as np
 import pandas as pd
 import json as js
 import csv as cv
+import datetime
 
 
 ## Define the paths (The paths here are those that considered the CITADEL infrastructure)
 
 
-#pathOfDrugfile = '/data8/network_mount/S/CODA19_Anon_csv/april_16_data/drug_data.csv'
-#pathofDrugJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files_Apr_16/drug_data.json'
-
 
 pathOfDrugfile = '/data8/network_mount/S/CODA19_Anon_csv/encrypted_data/drug_data.csv'
-pathofDrugJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files/drug_data.json'
+pathofDrugJsonfile = '/data8/network_mount/S/FHIR_json/dev_test/drug_data.json'
 
 
-path_to_dictionary = '/data8/projets/ChasseM_CODA19_1014582/fhir/code/rdas/files_mapping/chum.json'
+#path_to_dictionary = '/data8/projets/ChasseM_CODA19_1014582/fhir/code/rdas/dev_2021/chum.json'
+
+path_to_dictionary = '/data8/projets/ChasseM_CODA19_1014582/fhir/code/rdas/dev_2021/CHUM.json'
 
 ## Load and process (if required) the data using Pandas and the csv file.
 ## Provides a dataframe.
@@ -156,7 +156,8 @@ def drug_dic_json(dfDrug, dic_chum):
         
         if(key_exist_drug == 'None'):
             
-            system_input_drug = "http://hl7.org/fhir/sid/ndc"           
+             
+            system_input_drug = "http://terminology.hl7.org/CodeSystem/ahfs"
             code_input_drug = ''                        
             display_complete_drug = ''
             
@@ -171,7 +172,8 @@ def drug_dic_json(dfDrug, dic_chum):
               
               if((dfDrug.at[i,"drug_code"])==(dic_chum["drugCodes"][k]['code'])):
             
-                   system_input_drug = "http://hl7.org/fhir/sid/ndc"           
+                     
+                   system_input_drug = "http://terminology.hl7.org/CodeSystem/ahfs"
                    code_input_drug = dic_chum["drugCodes"][k]['code']                       
                    display_complete_drug = dic_chum["drugCodes"][k]['description']  
             
@@ -180,7 +182,7 @@ def drug_dic_json(dfDrug, dic_chum):
         
               else:
                   
-                  system_input_drug = "http://hl7.org/fhir/sid/ndc"           
+                  system_input_drug = "http://terminology.hl7.org/CodeSystem/ahfs"
                   code_input_drug = ''                        
                   display_complete_drug = ''
         
@@ -214,7 +216,7 @@ def drug_dic_json(dfDrug, dic_chum):
                         "coding": [
                           {
                             "system": system_input_drug,
-                            "code": dfDrug.iloc[i]["drug_code"],
+                            "code": dfDrug.iloc[i]["drug_code"],                            
                             "display": display_complete_drug
                           }
                         ]
@@ -226,9 +228,11 @@ def drug_dic_json(dfDrug, dic_chum):
 
                   
                   "effectivePeriod": {
-                     # YYYY-MM-DDThh:mm:ss+zz:zz
-                     "start": dfDrug.iloc[i]["drug_start_time"],
-                     "end": dfDrug.iloc[i]["drug_end_time"]
+                     
+                     # YYYY-MM-DDThh:mm:ss+zz:zz                                          
+                     "start": (datetime.datetime.strptime(str(dfDrug.iloc[i]["drug_start_time"]),'%Y-%m-%d %H:%M:%S')).strftime('%Y-%m-%dT%H:%M:%SZ'),                                        
+                     "end": (datetime.datetime.strptime(str(dfDrug.iloc[i]["drug_end_time"]),'%Y-%m-%d %H:%M:%S')).strftime('%Y-%m-%dT%H:%M:%SZ')
+                     
                  },
                   
                   

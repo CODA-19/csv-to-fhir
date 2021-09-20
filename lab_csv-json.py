@@ -24,23 +24,22 @@ import numpy as np
 import pandas as pd
 import json as js
 import csv as cv
+import datetime
 
 
 ## Define the paths (The paths here are those that considered the CITADEL infrastructure)
 
 
-#pathOfLabfile = '/data8/network_mount/S/CODA19_Anon_csv/april_data/lab_data.csv'
-#pathofEpifile = '/data8/network_mount/S/CODA19_Anon_csv/april_data/episode_data.csv'
-#pathofLabJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files_Apr_8/lab_data.json'
-
 
 
 pathOfLabfile = '/data8/network_mount/S/CODA19_Anon_csv/encrypted_data/lab_data.csv'
 pathofEpifile = '/data8/network_mount/S/CODA19_Anon_csv/encrypted_data/episode_data.csv'
-pathofLabJsonfile = '/data8/network_mount/S/FHIR_json/Mapped_Files/lab_data.json'
+pathofLabJsonfile = '/data8/network_mount/S/FHIR_json/dev_test/lab_data.json'
 
 
-path_to_dictionary = '/data8/projets/ChasseM_CODA19_1014582/fhir/code/rdas/files_mapping/chum.json'
+#path_to_dictionary = '/data8/projets/ChasseM_CODA19_1014582/fhir/code/rdas/dev_2021/chum.json'
+
+path_to_dictionary = '/data8/projets/ChasseM_CODA19_1014582/fhir/code/rdas/dev_2021/CHUM.json'
 
 
 
@@ -132,11 +131,16 @@ def lab_dic_json(dfLabData,dic_chum):
         
         #episode_uid = dfEpi.iloc[indexfor_episode[0]]['episode_admission_uid']
         
+        valuequantity_system = 'https://ucum.org/ucum.html'
+        system_input_loinc = 'http://loinc.org' 
+        code_input = ''
+        display_complete_input = ''
+        
         
         if(key_exist_loinc == 'None'):
             
             
-            system_input_loinc = 'http://loinc.org'            
+                       
             code_input = ''                        
             display_complete_input = 'no code available'
             
@@ -154,7 +158,9 @@ def lab_dic_json(dfLabData,dic_chum):
                   
                     system_input_loinc = dic_chum["labName"][k]['loinc_url_computed']            
                     code_input =  dic_chum["labName"][k]['loinc_code']                  
-                    display_complete_input = dic_chum["labName"][k]['display_string']  #raw_string_lower
+                    display_complete_input = dic_chum["labName"][k]['display_string']  #raw_string_lower                               
+                                              
+                                        
                     
                     break
         
@@ -215,7 +221,9 @@ def lab_dic_json(dfLabData,dic_chum):
                             
                             # Time of the observation (YYYY-MM-DDThh:mm:ss+zz:zz)
                             
-                            "effectiveDateTime" : dfLabData.iloc[i]["lab_sample_time"],
+                            #"effectiveDateTime" : dfLabData.iloc[i]["lab_sample_time"],
+                            
+                            "effectiveDateTime" : (datetime.datetime.strptime(str(dfLabData.iloc[i]["lab_sample_time"]),'%Y-%m-%d %H:%M:%S')).strftime('%Y-%m-%dT%H:%M:%SZ'),
                             
                             
                             # Time result issued (YYYY-MM-DDThh:mm:ss+zz:zz)
@@ -266,8 +274,8 @@ def lab_dic_json(dfLabData,dic_chum):
                             
                             "valueQuantity": {"value": dfLabData.iloc[i]["lab_result_value_string"],
                                               "unit":  dfLabData.iloc[i]["lab_result_units"],
-                                              "system": "",
-                                              "code": ""}
+                                              "system": valuequantity_system,
+                                              "code": dfLabData.iloc[i]["lab_result_units"]}
                                                                       
                                      
                        }
@@ -297,6 +305,7 @@ dict_data = read_dictionary(path_to_dictionary)
     
 ## Call the function to create the required json structure using
 ## dictionary.
+
 
 
 dictJsonLab = lab_dic_json(dfLab, dict_data)    
